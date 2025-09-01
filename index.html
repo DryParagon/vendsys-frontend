@@ -3,186 +3,252 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VendSys - Vending Machine System</title>
+    <title>VendSys - Smart Vending Solutions</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Custom styles for a better look and feel */
+        /* --- Base Styles --- */
         body {
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background-color: #e5e7eb; /* Light gray background to highlight the machine */
+            background-color: #f0f2f5; /* A softer, more modern light gray */
         }
-        /* Custom scrollbar for a cleaner look in the cart */
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #888; border-radius: 10px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #555; }
+        /* --- Custom Scrollbar --- */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 10px; border: 2px solid #e2e8f0; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #718096; }
 
-        /* Vending Machine Frame Styling */
+        /* --- Vending Machine Frame --- */
         .vending-machine-frame {
-            background: linear-gradient(145deg, #2d3748, #1a202c); /* Dark charcoal gradient */
-            border-radius: 2rem;
-            padding: 1.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 2px 4px rgba(255, 255, 255, 0.1);
+            background: linear-gradient(145deg, #1f2937, #111827);
+            border-radius: 2.5rem;
+            padding: 1rem;
+            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.4), 
+                        inset 0 4px 8px rgba(255, 255, 255, 0.05),
+                        inset 0 -4px 8px rgba(0, 0, 0, 0.2);
             max-width: 1400px;
             margin: 2rem auto;
+            border: 1px solid #4b5563;
         }
         .screen-area {
-            background-color: #000;
-            border: 4px solid #4a5568;
-            border-radius: 1.5rem;
+            background-color: #0a0a0a;
+            border: 6px solid #374151;
+            border-radius: 2rem;
             overflow: hidden;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.75);
         }
         .machine-components {
             display: grid;
-            grid-template-columns: 1fr 250px;
+            grid-template-columns: 1fr 280px;
             gap: 1.5rem;
-            margin-top: 1.5rem;
+            margin-top: 1rem;
             align-items: end;
         }
+
+        /* --- Payment & Delivery Styling --- */
         .payment-terminal {
-            background: #1a202c;
-            border-radius: 1rem;
+            background: #111827;
+            border-radius: 1.25rem;
             padding: 1.5rem;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.6), 0 1px 2px rgba(255,255,255,0.05);
+            border: 1px solid #374151;
         }
         .card-slot {
-            background: #111827;
-            height: 12px;
+            background: linear-gradient(#1f2937, #111827);
+            height: 14px;
             border-radius: 4px;
-            margin: 1rem 0;
-            border: 1px solid #4a5568;
+            margin: 1.25rem 0;
+            border: 1px solid #4b5563;
             position: relative;
+            box-shadow: inset 0 2px 3px rgba(0,0,0,0.5);
         }
         .card-slot::after {
             content: '';
             position: absolute;
-            right: 10px;
+            right: 12px;
             top: 50%;
             transform: translateY(-50%);
-            width: 5px;
-            height: 5px;
-            background: #34d399;
+            width: 6px;
+            height: 6px;
+            background: #10b981;
             border-radius: 50%;
-            animation: blink 1.5s infinite;
+            box-shadow: 0 0 5px #10b981, 0 0 10px #10b981;
+            animation: blink 1.5s infinite ease-in-out;
         }
-        @keyframes blink { 50% { opacity: 0; } }
+        @keyframes blink { 
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; } 
+        }
         .delivery-bin {
-            background: #111827;
+            background: #0a0a0a;
             border-radius: 1rem;
             padding: 1rem;
             text-align: center;
-            color: #4a5568;
+            color: #4b5563;
             font-family: 'Roboto Mono', monospace;
-            box-shadow: inset 0 10px 15px -3px rgba(0,0,0,0.7);
+            box-shadow: inset 0 12px 20px -5px rgba(0,0,0,0.8);
+            position: relative;
+            overflow: hidden;
         }
         .delivery-flap {
-            background: #2d3748;
-            height: 50px;
+            background: linear-gradient(#2d3748, #1f2937);
+            height: 60px;
             margin-top: 0.5rem;
             border-radius: 0.5rem;
-            border-top: 2px solid #718096;
+            border-top: 3px solid #718096;
             cursor: pointer;
+            transition: transform 0.2s ease;
         }
+        .delivery-flap:hover {
+            transform: translateY(-5px);
+        }
+        
+        /* --- Product Card Styling --- */
+        .product-card {
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: #3b82f6;
+        }
+        .product-card-image {
+            transition: transform 0.3s ease;
+        }
+        .product-card:hover .product-card-image {
+            transform: scale(1.05);
+        }
+        
+        /* --- Modal Animation --- */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
+        @keyframes scaleIn { from { transform: scale(0.95); } to { transform: scale(1); } }
+        @keyframes scaleOut { from { transform: scale(1); } to { transform: scale(0.95); } }
 
+        .modal-enter { animation: fadeIn 0.3s ease forwards; }
+        .modal-content-enter { animation: scaleIn 0.3s ease forwards; }
+        .modal-leave { animation: fadeOut 0.3s ease forwards; }
+        .modal-content-leave { animation: scaleOut 0.3s ease forwards; }
     </style>
 </head>
-<body class="bg-gray-200">
+<body class="bg-gray-100">
 
     <div class="vending-machine-frame">
         <div class="screen-area">
-             <div id="app" class="p-2 md:p-4 bg-gray-100 text-gray-800">
-                <div class="max-w-7xl mx-auto mb-4 bg-white p-2 rounded-xl shadow-md flex items-center justify-center space-x-2">
-                    <button id="customer-view-btn" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition-all duration-200">
-                        <i class="fas fa-shopping-cart mr-2"></i>Customer View
-                    </button>
-                    <button id="operator-view-btn" class="px-4 py-2 text-sm font-semibold text-gray-700 bg-gray-200 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-opacity-50 transition-all duration-200">
-                        <i class="fas fa-user-shield mr-2"></i>Operator Portal
-                    </button>
-                </div>
+             <div id="app" class="p-4 md:p-6 bg-gray-50 text-gray-900">
+                <header class="max-w-7xl mx-auto mb-6">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <svg class="w-10 h-10 text-blue-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 7L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 7L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 4.5L12 9L4 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 9.5V14.5L12 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Vend<span class="text-blue-600">Sys</span></h1>
+                        </div>
+                        <div class="flex items-center bg-gray-200 rounded-full p-1 shadow-inner">
+                            <button id="customer-view-btn" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-50 transition-all duration-300">
+                                <i class="fas fa-shopping-basket mr-2"></i>Shop
+                            </button>
+                            <button id="operator-view-btn" class="px-4 py-2 text-sm font-semibold text-gray-600 rounded-full hover:bg-white hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-50 transition-all duration-300">
+                                <i class="fas fa-chart-line mr-2"></i>Dashboard
+                            </button>
+                        </div>
+                    </div>
+                </header>
 
-                <div id="customer-view">
+                <main id="customer-view">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-                        <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-lg">
-                            <h1 class="text-3xl font-bold mb-1 text-gray-800">Welcome!</h1>
-                            <p class="text-gray-500 mb-6">Tap a product to see details or add to cart.</p>
+                        <!-- Products Section -->
+                        <div class="lg:col-span-2 bg-white/70 backdrop-blur-sm p-6 rounded-3xl shadow-lg border border-gray-200">
+                            <h2 class="text-3xl font-bold mb-1 text-gray-800">Choose Your Snack</h2>
+                            <p class="text-gray-500 mb-6">Tap on an item to view details and add it to your cart.</p>
                             <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                </div>
+                                <!-- Products will be rendered here by JS -->
+                            </div>
                         </div>
 
-                        <div class="bg-white p-6 rounded-2xl shadow-lg flex flex-col">
-                            <div class="flex justify-between items-center border-b pb-2 mb-4">
-                               <h2 class="text-2xl font-bold">My Cart</h2>
-                               <button id="cancel-btn" class="px-3 py-1 text-xs font-semibold text-red-600 bg-red-100 rounded-full hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Cancel Transaction</button>
+                        <!-- Cart Section -->
+                        <div class="bg-white p-6 rounded-3xl shadow-lg flex flex-col border border-gray-200">
+                            <div class="flex justify-between items-center border-b pb-3 mb-4">
+                               <h2 class="text-2xl font-bold flex items-center gap-3"><i class="fas fa-shopping-cart text-blue-500"></i>Your Order</h2>
+                               <button id="cancel-btn" class="px-3 py-1 text-xs font-semibold text-red-600 bg-red-100 rounded-full hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Clear All</button>
                             </div>
-                            <div id="cart-items" class="flex-grow overflow-y-auto custom-scrollbar pr-2 min-h-[200px]">
-                               <div id="cart-empty-message" class="text-center text-gray-500 mt-8">
-                                    <i class="fas fa-cart-plus fa-3x mb-4 text-gray-300"></i>
-                                    <p>Your cart is empty.</p>
+                            <div id="cart-items" class="flex-grow overflow-y-auto custom-scrollbar pr-2 min-h-[250px]">
+                               <div id="cart-empty-message" class="text-center text-gray-400 mt-12 flex flex-col items-center justify-center h-full">
+                                    <i class="fas fa-cart-plus fa-4x mb-4"></i>
+                                    <p class="font-semibold">Your cart is empty</p>
+                                    <p class="text-sm">Start by adding items!</p>
                                 </div>
                             </div>
-                            <div class="mt-auto pt-4 border-t">
+                            <div class="mt-auto pt-4 border-t-2 border-dashed">
                                 <div class="flex justify-between items-center text-xl font-bold mb-4">
                                     <span>Total:</span>
                                     <span id="cart-total">₹0.00</span>
                                 </div>
-                                <button id="checkout-btn" class="w-full bg-green-500 text-white py-3 rounded-lg text-lg font-bold hover:bg-green-600 transition-transform transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none" disabled>
-                                    <i class="fas fa-credit-card mr-2"></i>Proceed to Payment
+                                <button id="checkout-btn" class="w-full bg-green-500 text-white py-3.5 rounded-xl text-lg font-bold hover:bg-green-600 transition-all duration-300 transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-green-500/20" disabled>
+                                    <i class="fas fa-shield-alt mr-2"></i>Secure Checkout
                                 </button>
                             </div>
                         </div>
                     </div>
-                </div>
+                </main>
 
                 <div id="operator-view" class="hidden">
-                    </div>
+                    <!-- Operator Dashboard Content would go here -->
+                </div>
             </div>
         </div>
 
+        <!-- Physical Machine Components -->
         <div class="machine-components">
             <div class="delivery-bin">
-                <p class="text-lg font-bold">PULL TO COLLECT</p>
+                <p class="text-lg font-bold tracking-widest">COLLECTION TRAY</p>
                 <div class="delivery-flap"></div>
             </div>
             <div class="payment-terminal">
                 <div class="flex justify-between items-center">
-                    <p class="text-white font-bold text-lg">PAY HERE</p>
-                    <i class="fas fa-wifi text-white text-xl -rotate-45"></i>
+                    <p class="text-white font-bold text-lg">PAYMENT</p>
+                    <i class="fas fa-wifi text-blue-400 text-xl -rotate-45"></i>
                 </div>
                 <div class="card-slot"></div>
-                <p class="text-xs text-gray-400 text-center">Tap, Insert, or Swipe Card</p>
+                <div class="flex items-center justify-center gap-4 my-2">
+                    <i class="fab fa-cc-visa text-3xl text-gray-300"></i>
+                    <i class="fab fa-cc-mastercard text-3xl text-gray-300"></i>
+                    <img src="https://www.vectorlogo.zone/logos/upi/upi-icon.svg" class="h-6" alt="UPI"/>
+                </div>
+                <p class="text-xs text-gray-400 text-center font-mono">TAP / INSERT / SWIPE</p>
             </div>
         </div>
     </div>
 
-    <div id="modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
-        <div id="modal-content" class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 relative transform transition-all duration-300 scale-95 opacity-0">
-           </div>
+    <!-- Modal Container -->
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div id="modal-content" class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
+           <!-- Modal content is dynamically injected here -->
+        </div>
     </div>
 
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
 
-        // --- MOCK DATA ---
+        // --- REALISTIC MOCK DATA ---
         const products = [
-             { id: 1, name: 'Classic Cola', price: 20, image: 'https://placehold.co/200x200/e63946/ffffff?text=Cola', stock: 15, par: 20, nutrition: 'Calories: 140, Sugar: 39g', allergens: 'None' },
-             { id: 2, name: 'Diet Cola', price: 20, image: 'https://placehold.co/200x200/f1faee/000000?text=Diet+Cola', stock: 3, par: 20, nutrition: 'Calories: 0, Sugar: 0g', allergens: 'Contains Phenylalanine' },
-             { id: 3, name: 'Lemon Soda', price: 15, image: 'https://placehold.co/200x200/a8dadc/000000?text=Lemon', stock: 18, par: 20, nutrition: 'Calories: 120, Sugar: 32g', allergens: 'None' },
-             { id: 4, name: 'Orange Drink', price: 15, image: 'https://placehold.co/200x200/ffb703/ffffff?text=Orange', stock: 0, par: 20, nutrition: 'Calories: 160, Sugar: 42g', allergens: 'None' },
-             { id: 5, name: 'Spring Water', price: 10, image: 'https://placehold.co/200x200/457b9d/ffffff?text=Water', stock: 20, par: 20, nutrition: 'Calories: 0, Sugar: 0g', allergens: 'None' },
-             { id: 6, name: 'Iced Tea', price: 25, image: 'https://placehold.co/200x200/8d5b4c/ffffff?text=Tea', stock: 12, par: 15, nutrition: 'Calories: 90, Sugar: 22g', allergens: 'None' },
-             { id: 7, name: 'Potato Chips', price: 30, image: 'https://placehold.co/200x200/fca311/ffffff?text=Chips', stock: 5, par: 15, nutrition: 'Calories: 250, Fat: 15g', allergens: 'May contain soy' },
-             { id: 8, name: 'Pretzels', price: 20, image: 'https://placehold.co/200x200/e5e5e5/000000?text=Pretzels', stock: 10, par: 15, nutrition: 'Calories: 200, Sodium: 450mg', allergens: 'Contains Wheat' },
+             { id: 1, name: 'Coca-Cola Classic', price: 40, image: 'https://cdn.uengage.io/uploads/18085/image-179182-1711711756.jpeg', stock: 15, par: 20, nutrition: 'Calories: 140, Sugar: 39g', allergens: 'None' },
+             { id: 2, name: 'Lay\'s Classic', price: 30, image: 'https://m.media-amazon.com/images/I/61e+UwnsWwL._UF894,1000_QL80_.jpg', stock: 8, par: 15, nutrition: 'Calories: 250, Fat: 15g', allergens: 'None' },
+             { id: 3, name: 'Pepsi', price: 40, image: 'https://progressfin.co.in/wp-content/uploads/2024/08/pepsi.jpg', stock: 18, par: 20, nutrition: 'Calories: 150, Sugar: 41g', allergens: 'None' },
+             { id: 4, name: 'Amul Lassi', price: 25, image: 'https://nativall.myshopify.com/cdn/shop/products/1SdwVwMUk-MZB6c3enPMXKwk_8UqlDL8c.png?v=1591469408&width=1445', stock: 10, par: 15, nutrition: 'Calories: 180, Protein: 4g', allergens: 'Contains Dairy' },
+             { id: 5, name: 'Kinley Water', price: 20, image: 'https://www.coca-cola.com/content/dam/onexp/in/en/home-page-test-img/brands/kinley/kinley%20desktop.jpg', stock: 20, par: 20, nutrition: 'Calories: 0, Sugar: 0g', allergens: 'None' },
+             { id: 6, name: 'Cadbury Dairy Milk', price: 20, image: 'https://leeladharstores.com/image/cache/catalog/category/desserts%20and%20confectionery_/chocolates/Cadbury%2010%20Dairy%20Milk%20Chocolate%20Bar%20200G-500x500.jpg', stock: 12, par: 25, nutrition: 'Calories: 240, Sugar: 25g', allergens: 'Contains Dairy, Soy' },
+             { id: 7, name: 'Kurkure Masala Munch', price: 20, image: 'https://sheikhgroup.in/wp-content/uploads/2023/07/71sOPzrW0mL._SL1500_.jpg', stock: 0, par: 15, nutrition: 'Calories: 270, Fat: 16g', allergens: 'Contains Wheat, Soy' },
+             { id: 8, name: 'Good Day Cookies', price: 10, image: 'https://m.media-amazon.com/images/I/61IhdI0oN8L.jpg', stock: 10, par: 20, nutrition: 'Calories: 150, Sodium: 90mg', allergens: 'Contains Wheat, Dairy' },
         ];
         
-        let cart = {}; // Use an object for easier quantity management: { productId: quantity }
+        let cart = {}; // { productId: quantity }
 
         // --- DOM ELEMENT REFERENCES ---
         const customerViewBtn = document.getElementById('customer-view-btn');
@@ -205,16 +271,18 @@
             products.forEach(product => {
                 const isOutOfStock = product.stock === 0;
                 const productEl = document.createElement('div');
-                productEl.className = `product-card border rounded-lg p-3 text-center cursor-pointer transition-all duration-200 ${isOutOfStock ? 'opacity-50 cursor-not-allowed bg-gray-100' : 'hover:shadow-lg hover:border-blue-500'}`;
+                productEl.className = `product-card bg-white border border-gray-200 rounded-2xl p-3 text-center cursor-pointer flex flex-col justify-between ${isOutOfStock ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`;
                 productEl.dataset.productId = product.id;
                 
                 productEl.innerHTML = `
                     <div class="relative">
-                        <img src="${product.image}" alt="${product.name}" class="w-full h-24 object-cover rounded-md mb-2">
-                        ${isOutOfStock ? '<div class="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center rounded-md"><span class="text-white font-bold text-sm">OUT OF STOCK</span></div>' : ''}
+                        <img src="${product.image}" alt="${product.name}" class="w-full h-28 object-contain rounded-md mb-2 product-card-image" onerror="this.src='https://placehold.co/200x200/cccccc/ffffff?text=Image+Error'">
+                        ${isOutOfStock ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl"><span class="text-white font-bold text-sm tracking-wider">OUT OF STOCK</span></div>' : ''}
                     </div>
-                    <h3 class="font-semibold text-sm">${product.name}</h3>
-                    <p class="text-gray-600 font-bold">₹${product.price.toFixed(2)}</p>
+                    <div>
+                        <h3 class="font-semibold text-sm leading-tight mt-2">${product.name}</h3>
+                        <p class="text-gray-800 font-bold text-md mt-1">₹${product.price.toFixed(2)}</p>
+                    </div>
                 `;
 
                 if (!isOutOfStock) {
@@ -235,20 +303,19 @@
                     const product = products.find(p => p.id == productId);
                     const quantity = cart[productId];
                     const cartItemEl = document.createElement('div');
-                    cartItemEl.className = 'flex justify-between items-center mb-2 p-2 bg-gray-50 rounded-lg animate-fade-in';
+                    cartItemEl.className = 'flex justify-between items-center mb-3 p-2 bg-gray-50 rounded-xl';
                     cartItemEl.innerHTML = `
                         <div class="flex items-center gap-3">
-                             <img src="${product.image}" class="w-12 h-12 rounded-md">
+                             <img src="${product.image}" class="w-12 h-12 object-contain rounded-lg bg-white p-1" onerror="this.src='https://placehold.co/100x100/cccccc/ffffff?text=Err'">
                              <div>
                                 <p class="font-semibold text-sm">${product.name}</p>
-                                <p class="text-xs text-gray-500">₹${product.price.toFixed(2)}</p>
+                                <p class="text-xs text-gray-500">₹${product.price.toFixed(2)} x ${quantity}</p>
                              </div>
                         </div>
                         <div class="flex items-center gap-2">
-                            <button class="cart-quantity-btn" data-product-id="${product.id}" data-action="decrease"><i class="fas fa-minus-circle text-gray-400 hover:text-red-500"></i></button>
+                            <button class="cart-quantity-btn w-7 h-7 flex items-center justify-center rounded-full bg-gray-200 hover:bg-red-200 text-red-600" data-product-id="${product.id}" data-action="decrease"><i class="fas fa-minus text-xs"></i></button>
                             <span class="font-bold w-5 text-center">${quantity}</span>
-                            <button class="cart-quantity-btn" data-product-id="${product.id}" data-action="increase"><i class="fas fa-plus-circle text-gray-400 hover:text-green-500"></i></button>
-                            <button class="cart-quantity-btn ml-2" data-product-id="${product.id}" data-action="remove"><i class="fas fa-trash-alt text-gray-400 hover:text-red-600"></i></button>
+                            <button class="cart-quantity-btn w-7 h-7 flex items-center justify-center rounded-full bg-gray-200 hover:bg-green-200 text-green-600" data-product-id="${product.id}" data-action="increase"><i class="fas fa-plus text-xs"></i></button>
                         </div>
                     `;
                     cartItemsContainer.appendChild(cartItemEl);
@@ -283,8 +350,6 @@
                 if (cart[productId] <= 0) {
                     delete cart[productId];
                 }
-            } else if (action === 'remove') {
-                delete cart[productId];
             }
             renderCart();
         };
@@ -292,15 +357,19 @@
         const showProductDetails = (productId) => {
             const product = products.find(p => p.id === productId);
             modalContent.innerHTML = `
-                <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-                <img src="${product.image}" class="w-32 h-32 mx-auto rounded-lg mb-4 shadow-lg">
-                <h2 class="text-2xl font-bold">${product.name}</h2>
-                <p class="text-lg font-semibold text-blue-600 my-2">₹${product.price.toFixed(2)}</p>
-                <div class="text-left text-sm text-gray-600 my-4 p-3 bg-gray-50 rounded-lg">
-                    <p><strong>Nutrition:</strong> ${product.nutrition}</p>
-                    <p><strong>Allergens:</strong> ${product.allergens}</p>
+                <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
+                <div class="text-center">
+                    <img src="${product.image}" class="w-40 h-40 mx-auto object-contain mb-4" onerror="this.src='https://placehold.co/200x200/cccccc/ffffff?text=Image+Error'">
+                    <h2 class="text-3xl font-bold">${product.name}</h2>
+                    <p class="text-2xl font-semibold text-blue-600 my-2">₹${product.price.toFixed(2)}</p>
+                    <div class="text-left text-sm text-gray-600 my-4 p-4 bg-gray-50 rounded-xl border">
+                        <p><strong><i class="fas fa-cookie-bite mr-2 text-gray-400"></i>Nutrition:</strong> ${product.nutrition}</p>
+                        <p class="mt-2"><strong><i class="fas fa-exclamation-triangle mr-2 text-gray-400"></i>Allergens:</strong> ${product.allergens}</p>
+                    </div>
+                    <button id="add-to-cart-modal" class="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-blue-700 transition-transform transform hover:scale-105">
+                        <i class="fas fa-cart-plus mr-2"></i>Add to Cart
+                    </button>
                 </div>
-                <button id="add-to-cart-modal" class="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-blue-700 transition-transform transform hover:scale-105">Add to Cart</button>
             `;
             openModal();
             document.getElementById('add-to-cart-modal').addEventListener('click', () => {
@@ -312,12 +381,12 @@
         
         const showCheckout = () => {
             modalContent.innerHTML = `
-                 <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-                 <h2 class="text-2xl font-bold mb-4">Payment Method</h2>
-                 <p class="text-gray-600 mb-6">Please select how you'd like to pay.</p>
+                 <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
+                 <h2 class="text-3xl font-bold mb-4 text-center">Payment</h2>
+                 <p class="text-gray-600 mb-6 text-center">How would you like to pay?</p>
                  <div class="space-y-3">
-                     <button class="payment-option w-full flex items-center justify-center p-4 border rounded-lg text-lg hover:bg-gray-100" data-method="card"><i class="fab fa-cc-visa mr-3 text-blue-700"></i>Card / UPI</button>
-                     <button class="payment-option w-full flex items-center justify-center p-4 border rounded-lg text-lg hover:bg-gray-100" data-method="cash"><i class="fas fa-money-bill-wave mr-3 text-green-600"></i>Pay with Cash</button>
+                     <button class="payment-option w-full flex items-center justify-center p-4 border rounded-xl text-lg font-semibold hover:bg-gray-100 hover:border-blue-500 transition-all" data-method="card"><i class="fas fa-credit-card mr-3 text-blue-600"></i>Card / UPI</button>
+                     <button class="payment-option w-full flex items-center justify-center p-4 border rounded-xl text-lg font-semibold hover:bg-gray-100 hover:border-green-500 transition-all" data-method="cash"><i class="fas fa-money-bill-wave mr-3 text-green-600"></i>Pay with Cash</button>
                  </div>
             `;
             openModal();
@@ -325,112 +394,66 @@
             document.querySelectorAll('.payment-option').forEach(btn => {
                 btn.addEventListener('click', (e) => {
                     const method = e.currentTarget.dataset.method;
-                    if (method === 'card') {
-                        processCardPayment();
-                    } else if (method === 'cash') {
-                        showCashPaymentUI();
-                    }
+                    processCardPayment(); // Simplified for this demo to go to processing
                 });
             });
-        };
-
-        const showCashPaymentUI = () => {
-            let amountInserted = 0;
-            const totalDue = getCartTotal();
-            
-            const updateUI = () => {
-                const changeDue = Math.max(0, amountInserted - totalDue);
-                document.getElementById('amount-inserted-val').textContent = `₹${amountInserted.toFixed(2)}`;
-                document.getElementById('change-due-val').textContent = `₹${changeDue.toFixed(2)}`;
-                const finalizeBtn = document.getElementById('finalize-cash-payment');
-                if (amountInserted >= totalDue) {
-                    finalizeBtn.disabled = false;
-                    finalizeBtn.classList.replace('bg-gray-400', 'bg-green-500');
-                    finalizeBtn.classList.replace('cursor-not-allowed', 'hover:bg-green-600');
-                } else {
-                     finalizeBtn.disabled = true;
-                     finalizeBtn.classList.replace('bg-green-500', 'bg-gray-400');
-                     finalizeBtn.classList.replace('hover:bg-green-600', 'cursor-not-allowed');
-                }
-            };
-
-            modalContent.innerHTML = `
-                <button id="close-modal" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-                <h2 class="text-2xl font-bold mb-2">Cash Payment</h2>
-                <div class="bg-gray-100 p-4 rounded-lg my-4 text-center">
-                    <div class="flex justify-around">
-                        <div><p class="text-sm text-gray-500">Total Due</p><p class="font-bold text-xl">₹${totalDue.toFixed(2)}</p></div>
-                        <div><p class="text-sm text-gray-500">Inserted</p><p class="font-bold text-xl text-blue-600" id="amount-inserted-val">₹0.00</p></div>
-                        <div><p class="text-sm text-gray-500">Change</p><p class="font-bold text-xl text-green-600" id="change-due-val">₹0.00</p></div>
-                    </div>
-                </div>
-                <p class="text-gray-600 mb-4 text-center">Please insert cash below.</p>
-                <div class="grid grid-cols-3 gap-3 mb-6">
-                    <button class="cash-btn p-3 border rounded-lg hover:bg-gray-100" data-value="50">₹50</button>
-                    <button class="cash-btn p-3 border rounded-lg hover:bg-gray-100" data-value="20">₹20</button>
-                    <button class="cash-btn p-3 border rounded-lg hover:bg-gray-100" data-value="10">₹10</button>
-                </div>
-                <button id="finalize-cash-payment" class="w-full bg-gray-400 text-white py-3 rounded-lg text-lg font-bold transition-colors cursor-not-allowed" disabled>Complete Purchase</button>
-            `;
-            
-            document.querySelectorAll('.cash-btn').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    amountInserted += parseFloat(e.currentTarget.dataset.value);
-                    updateUI();
-                });
-            });
-
-            document.getElementById('finalize-cash-payment').addEventListener('click', () => {
-                const change = Math.max(0, amountInserted - totalDue);
-                finishTransaction(`Please collect your items and ₹${change.toFixed(2)} change.`);
-            });
-            document.getElementById('close-modal').addEventListener('click', closeModal);
         };
 
         const processCardPayment = () => {
             modalContent.innerHTML = `
-                <div class="text-center py-4">
-                    <i class="fas fa-spinner fa-spin fa-3x text-blue-500"></i>
-                    <p class="mt-4 text-lg">Processing payment...</p>
-                    <p class="text-sm text-gray-500">Please tap card on terminal</p>
+                <div class="text-center py-8">
+                    <div class="relative w-20 h-20 mx-auto">
+                        <div class="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
+                        <div class="absolute inset-0 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
+                    </div>
+                    <p class="mt-6 text-xl font-semibold">Processing Payment...</p>
+                    <p class="text-sm text-gray-500">Please tap your card on the terminal</p>
                 </div>
             `;
             setTimeout(() => {
-                finishTransaction("Payment Successful! Please collect your items.");
-            }, 2000);
+                // Deduct stock
+                Object.keys(cart).forEach(id => {
+                    const product = products.find(p => p.id == id);
+                    if (product) product.stock -= cart[id];
+                });
+                finishTransaction("Payment Successful! Please collect your items from the tray below.");
+            }, 2500);
         };
 
         const finishTransaction = (message) => {
             modalContent.innerHTML = `
-                <div class="text-center py-4">
-                    <i class="fas fa-check-circle fa-3x text-green-500"></i>
-                    <p class="mt-4 text-lg font-semibold">Transaction Complete!</p>
-                    <p class="text-gray-600">${message}</p>
+                <div class="text-center py-8">
+                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
+                        <i class="fas fa-check fa-3x text-green-500"></i>
+                    </div>
+                    <p class="mt-6 text-xl font-semibold">Transaction Complete!</p>
+                    <p class="text-gray-600 mt-2">${message}</p>
                 </div>
             `;
-            // Clear cart after successful payment
             cart = {};
             setTimeout(() => {
                 closeModal();
                 renderCart();
-            }, 2500);
+                renderProducts(); // Re-render to show updated stock
+            }, 3000);
         }
         
         const openModal = () => {
             modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            setTimeout(() => {
-                 modalContent.classList.remove('scale-95', 'opacity-0');
-                 modalContent.classList.add('scale-100', 'opacity-100');
-            }, 10);
+            modal.classList.add('flex', 'modal-enter');
+            modalContent.classList.add('modal-content-enter');
+            modalContent.classList.remove('modal-content-leave');
+            modal.classList.remove('modal-leave');
         };
 
         const closeModal = () => {
-             modalContent.classList.remove('scale-100', 'opacity-100');
-             modalContent.classList.add('scale-95', 'opacity-0');
+            modal.classList.add('modal-leave');
+            modalContent.classList.add('modal-content-leave');
+            modalContent.classList.remove('modal-content-enter');
+             
             setTimeout(() => {
                 modal.classList.add('hidden');
-                modal.classList.remove('flex');
+                modal.classList.remove('flex', 'modal-enter', 'modal-leave');
             }, 300);
         };
         
@@ -453,7 +476,6 @@
         modal.addEventListener('click', (e) => {
             if (e.target === modal) closeModal();
         });
-
 
         // --- INITIALIZATION ---
         const initialize = () => {
