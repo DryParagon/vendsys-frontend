@@ -6,6 +6,7 @@
     <title>VendSys - Smart Vending Solutions</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -15,7 +16,7 @@
             font-family: 'Inter', sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
-            background-color: #f0f2f5; /* A softer, more modern light gray */
+            background-color: #f0f2f5;
         }
         /* --- Custom Scrollbar --- */
         .custom-scrollbar::-webkit-scrollbar { width: 8px; }
@@ -29,8 +30,8 @@
             border-radius: 2.5rem;
             padding: 1rem;
             box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.4), 
-                        inset 0 4px 8px rgba(255, 255, 255, 0.05),
-                        inset 0 -4px 8px rgba(0, 0, 0, 0.2);
+                         inset 0 4px 8px rgba(255, 255, 255, 0.05),
+                         inset 0 -4px 8px rgba(0, 0, 0, 0.2);
             max-width: 1400px;
             margin: 2rem auto;
             border: 1px solid #4b5563;
@@ -92,8 +93,6 @@
             color: #4b5563;
             font-family: 'Roboto Mono', monospace;
             box-shadow: inset 0 12px 20px -5px rgba(0,0,0,0.8);
-            position: relative;
-            overflow: hidden;
         }
         .delivery-flap {
             background: linear-gradient(#2d3748, #1f2937);
@@ -102,40 +101,23 @@
             border-radius: 0.5rem;
             border-top: 3px solid #718096;
             cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-        .delivery-flap:hover {
-            transform: translateY(-5px);
         }
         
         /* --- Product Card Styling --- */
         .product-card {
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
         .product-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
             border-color: #3b82f6;
         }
-        .product-card-image {
-            transition: transform 0.3s ease;
-        }
-        .product-card:hover .product-card-image {
-            transform: scale(1.05);
-        }
         
         /* --- Modal Animation --- */
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes fadeOut { from { opacity: 1; } to { opacity: 0; } }
-        @keyframes scaleIn { from { transform: scale(0.95); } to { transform: scale(1); } }
-        @keyframes scaleOut { from { transform: scale(1); } to { transform: scale(0.95); } }
-
+        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
         .modal-enter { animation: fadeIn 0.3s ease forwards; }
         .modal-content-enter { animation: scaleIn 0.3s ease forwards; }
-        .modal-leave { animation: fadeOut 0.3s ease forwards; }
-        .modal-content-leave { animation: scaleOut 0.3s ease forwards; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -150,10 +132,10 @@
                             <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Vend<span class="text-blue-600">Sys</span></h1>
                         </div>
                         <div class="flex items-center bg-gray-200 rounded-full p-1 shadow-inner">
-                            <button id="customer-view-btn" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-50 transition-all duration-300">
+                            <button id="customer-view-btn" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full shadow-md">
                                 <i class="fas fa-shopping-basket mr-2"></i>Shop
                             </button>
-                            <button id="operator-view-btn" class="px-4 py-2 text-sm font-semibold text-gray-600 rounded-full hover:bg-white hover:text-gray-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-50 transition-all duration-300">
+                            <button id="operator-view-btn" class="px-4 py-2 text-sm font-semibold text-gray-600 rounded-full">
                                 <i class="fas fa-chart-line mr-2"></i>Dashboard
                             </button>
                         </div>
@@ -161,45 +143,12 @@
                 </header>
 
                 <main id="customer-view">
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
-                        <!-- Products Section -->
-                        <div class="lg:col-span-2 bg-white/70 backdrop-blur-sm p-6 rounded-3xl shadow-lg border border-gray-200">
-                            <h2 class="text-3xl font-bold mb-1 text-gray-800">Choose Your Snack</h2>
-                            <p class="text-gray-500 mb-6">Tap on an item to view details and add it to your cart.</p>
-                            <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                                <!-- Products will be rendered here by JS -->
-                            </div>
-                        </div>
-
-                        <!-- Cart Section -->
-                        <div class="bg-white p-6 rounded-3xl shadow-lg flex flex-col border border-gray-200">
-                            <div class="flex justify-between items-center border-b pb-3 mb-4">
-                               <h2 class="text-2xl font-bold flex items-center gap-3"><i class="fas fa-shopping-cart text-blue-500"></i>Your Order</h2>
-                               <button id="cancel-btn" class="px-3 py-1 text-xs font-semibold text-red-600 bg-red-100 rounded-full hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed" disabled>Clear All</button>
-                            </div>
-                            <div id="cart-items" class="flex-grow overflow-y-auto custom-scrollbar pr-2 min-h-[250px]">
-                               <div id="cart-empty-message" class="text-center text-gray-400 mt-12 flex flex-col items-center justify-center h-full">
-                                    <i class="fas fa-cart-plus fa-4x mb-4"></i>
-                                    <p class="font-semibold">Your cart is empty</p>
-                                    <p class="text-sm">Start by adding items!</p>
-                                </div>
-                            </div>
-                            <div class="mt-auto pt-4 border-t-2 border-dashed">
-                                <div class="flex justify-between items-center text-xl font-bold mb-4">
-                                    <span>Total:</span>
-                                    <span id="cart-total">₹0.00</span>
-                                </div>
-                                <button id="checkout-btn" class="w-full bg-green-500 text-white py-3.5 rounded-xl text-lg font-bold hover:bg-green-600 transition-all duration-300 transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-green-500/20" disabled>
-                                    <i class="fas fa-shield-alt mr-2"></i>Secure Checkout
-                                </button>
-                            </div>
-                        </div>
-                    </div>
+                    <!-- Customer shopping view content -->
                 </main>
 
-                <div id="operator-view" class="hidden">
-                    <!-- Operator Dashboard Content would go here -->
-                </div>
+                <main id="operator-view" class="hidden">
+                     <!-- Operator dashboard content is generated here by JS -->
+                </main>
             </div>
         </div>
 
@@ -232,72 +181,166 @@
         </div>
     </div>
 
-
     <script>
     document.addEventListener('DOMContentLoaded', () => {
-
-        // --- REALISTIC MOCK DATA ---
-        const products = [
-             { id: 1, name: 'Coca-Cola Classic', price: 40, image: 'https://cdn.uengage.io/uploads/18085/image-179182-1711711756.jpeg', stock: 15, par: 20, nutrition: 'Calories: 140, Sugar: 39g', allergens: 'None' },
-             { id: 2, name: 'Lay\'s Classic', price: 30, image: 'https://m.media-amazon.com/images/I/61e+UwnsWwL._UF894,1000_QL80_.jpg', stock: 8, par: 15, nutrition: 'Calories: 250, Fat: 15g', allergens: 'None' },
-             { id: 3, name: 'Pepsi', price: 40, image: 'https://progressfin.co.in/wp-content/uploads/2024/08/pepsi.jpg', stock: 18, par: 20, nutrition: 'Calories: 150, Sugar: 41g', allergens: 'None' },
-             { id: 4, name: 'Amul Lassi', price: 25, image: 'https://nativall.myshopify.com/cdn/shop/products/1SdwVwMUk-MZB6c3enPMXKwk_8UqlDL8c.png?v=1591469408&width=1445', stock: 10, par: 15, nutrition: 'Calories: 180, Protein: 4g', allergens: 'Contains Dairy' },
-             { id: 5, name: 'Kinley Water', price: 20, image: 'https://www.coca-cola.com/content/dam/onexp/in/en/home-page-test-img/brands/kinley/kinley%20desktop.jpg', stock: 20, par: 20, nutrition: 'Calories: 0, Sugar: 0g', allergens: 'None' },
-             { id: 6, name: 'Cadbury Dairy Milk', price: 20, image: 'https://leeladharstores.com/image/cache/catalog/category/desserts%20and%20confectionery_/chocolates/Cadbury%2010%20Dairy%20Milk%20Chocolate%20Bar%20200G-500x500.jpg', stock: 12, par: 25, nutrition: 'Calories: 240, Sugar: 25g', allergens: 'Contains Dairy, Soy' },
-             { id: 7, name: 'Kurkure Masala Munch', price: 20, image: 'https://sheikhgroup.in/wp-content/uploads/2023/07/71sOPzrW0mL._SL1500_.jpg', stock: 0, par: 15, nutrition: 'Calories: 270, Fat: 16g', allergens: 'Contains Wheat, Soy' },
-             { id: 8, name: 'Good Day Cookies', price: 10, image: 'https://m.media-amazon.com/images/I/61IhdI0oN8L.jpg', stock: 10, par: 20, nutrition: 'Calories: 150, Sodium: 90mg', allergens: 'Contains Wheat, Dairy' },
+        // --- DATA ---
+        let products = [
+             { id: 1, name: 'Coca-Cola Classic', price: 40, image: 'https://cdn.uengage.io/uploads/18085/image-179182-1711711756.jpeg', stock: 15, par: 20, sold: 5 },
+             { id: 2, name: 'Lay\'s Classic', price: 30, image: 'https://m.media-amazon.com/images/I/61e+UwnsWwL._UF894,1000_QL80_.jpg', stock: 8, par: 15, sold: 12 },
+             { id: 3, name: 'Pepsi', price: 40, image: 'https://progressfin.co.in/wp-content/uploads/2024/08/pepsi.jpg', stock: 18, par: 20, sold: 7 },
+             { id: 4, name: 'Amul Lassi', price: 25, image: 'https://nativall.myshopify.com/cdn/shop/products/1SdwVwMUk-MZB6c3enPMXKwk_8UqlDL8c.png?v=1591469408&width=1445', stock: 4, par: 15, sold: 11 },
+             { id: 5, name: 'Kinley Water', price: 20, image: 'https://www.coca-cola.com/content/dam/onexp/in/en/home-page-test-img/brands/kinley/kinley%20desktop.jpg', stock: 20, par: 20, sold: 15 },
+             { id: 6, name: 'Cadbury Dairy Milk', price: 20, image: 'https://leeladharstores.com/image/cache/catalog/category/desserts%20and%20confectionery_/chocolates/Cadbury%2010%20Dairy%20Milk%20Chocolate%20Bar%20200G-500x500.jpg', stock: 12, par: 25, sold: 23 },
+             { id: 7, name: 'Kurkure Masala Munch', price: 20, image: 'https://sheikhgroup.in/wp-content/uploads/2023/07/71sOPzrW0mL._SL1500_.jpg', stock: 0, par: 15, sold: 15 },
+             { id: 8, name: 'Good Day Cookies', price: 10, image: 'https://m.media-amazon.com/images/I/61IhdI0oN8L.jpg', stock: 10, par: 20, sold: 10 },
         ];
-        
-        let cart = {}; // { productId: quantity }
+        let cart = {}; 
+        let salesChartInstance = null;
+        let stockChartInstance = null;
 
         // --- DOM ELEMENT REFERENCES ---
         const customerViewBtn = document.getElementById('customer-view-btn');
         const operatorViewBtn = document.getElementById('operator-view-btn');
         const customerView = document.getElementById('customer-view');
         const operatorView = document.getElementById('operator-view');
-        const productGrid = document.getElementById('product-grid');
-        const cartItemsContainer = document.getElementById('cart-items');
-        const cartTotalEl = document.getElementById('cart-total');
-        const checkoutBtn = document.getElementById('checkout-btn');
-        const cancelBtn = document.getElementById('cancel-btn');
         const modal = document.getElementById('modal');
         const modalContent = document.getElementById('modal-content');
-        const cartEmptyMessage = document.getElementById('cart-empty-message');
         
-        // --- CORE FUNCTIONS ---
+        // --- VIEW RENDERING ---
+
+        const renderCustomerView = () => {
+            customerView.innerHTML = `
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                <div class="lg:col-span-2 bg-white/70 backdrop-blur-sm p-6 rounded-3xl shadow-lg border border-gray-200">
+                    <h2 class="text-3xl font-bold mb-1 text-gray-800">Choose Your Snack</h2>
+                    <p class="text-gray-500 mb-6">Tap on an item to view details and add it to your cart.</p>
+                    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-lg flex flex-col border border-gray-200">
+                    <div class="flex justify-between items-center border-b pb-3 mb-4">
+                       <h2 class="text-2xl font-bold flex items-center gap-3"><i class="fas fa-shopping-cart text-blue-500"></i>Your Order</h2>
+                       <button id="cancel-btn" class="px-3 py-1 text-xs font-semibold text-red-600 bg-red-100 rounded-full hover:bg-red-200" disabled>Clear All</button>
+                    </div>
+                    <div id="cart-items" class="flex-grow overflow-y-auto custom-scrollbar pr-2 min-h-[250px]">
+                       <div id="cart-empty-message" class="text-center text-gray-400 mt-12 flex flex-col items-center justify-center h-full">
+                            <i class="fas fa-cart-plus fa-4x mb-4"></i>
+                            <p class="font-semibold">Your cart is empty</p>
+                            <p class="text-sm">Start by adding items!</p>
+                       </div>
+                    </div>
+                    <div class="mt-auto pt-4 border-t-2 border-dashed">
+                        <div class="flex justify-between items-center text-xl font-bold mb-4">
+                            <span>Total:</span>
+                            <span id="cart-total">₹0.00</span>
+                        </div>
+                        <button id="checkout-btn" class="w-full bg-green-500 text-white py-3.5 rounded-xl text-lg font-bold hover:bg-green-600 transition-all duration-300 transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-green-500/20" disabled>
+                            <i class="fas fa-shield-alt mr-2"></i>Secure Checkout
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+            renderProducts();
+            renderCart();
+            // Re-add event listeners for the newly created elements
+            document.getElementById('checkout-btn').addEventListener('click', showCheckout);
+            document.getElementById('cancel-btn').addEventListener('click', () => { cart = {}; renderCart(); });
+        };
+
+        const renderDashboard = () => {
+            if (salesChartInstance) salesChartInstance.destroy();
+            if (stockChartInstance) stockChartInstance.destroy();
+
+            const totalRevenue = products.reduce((sum, p) => sum + p.sold * p.price, 0);
+            const itemsToRestock = products.filter(p => p.stock < p.par).length;
+
+            operatorView.innerHTML = `
+            <div class="max-w-7xl mx-auto space-y-6">
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-md border"><h3 class="text-gray-500">Total Revenue</h3><p class="text-3xl font-bold">₹${totalRevenue.toFixed(2)}</p></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-md border"><h3 class="text-gray-500">Items Sold (Today)</h3><p class="text-3xl font-bold">${products.reduce((s, p) => s + p.sold, 0)}</p></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-md border"><h3 class="text-gray-500">Needs Restock</h3><p class="text-3xl font-bold">${itemsToRestock}</p></div>
+                </div>
+                <!-- Charts -->
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                    <div class="lg:col-span-3 bg-white p-6 rounded-2xl shadow-md border"><canvas id="salesChart"></canvas></div>
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md border"><canvas id="stockChart"></canvas></div>
+                </div>
+                <!-- Inventory Table -->
+                <div class="bg-white p-6 rounded-2xl shadow-md border">
+                    <h3 class="text-xl font-bold mb-4">Inventory Status</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead><tr class="border-b"><th class="p-2">Product</th><th class="p-2">Stock</th><th class="p-2">Par</th><th class="p-2">Status</th></tr></thead>
+                            <tbody id="inventory-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>`;
+
+            // Populate Inventory Table
+            const tableBody = document.getElementById('inventory-table-body');
+            products.forEach(p => {
+                let status, statusColor;
+                if (p.stock === 0) { status = 'Empty'; statusColor = 'bg-red-100 text-red-700'; } 
+                else if (p.stock < p.par) { status = 'Low'; statusColor = 'bg-yellow-100 text-yellow-700'; }
+                else { status = 'OK'; statusColor = 'bg-green-100 text-green-700'; }
+                tableBody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2 font-semibold">${p.name}</td><td class="p-2">${p.stock}</td><td class="p-2">${p.par}</td><td class="p-2"><span class="px-2 py-1 text-xs font-semibold rounded-full ${statusColor}">${status}</span></td></tr>`;
+            });
+            
+            // Render Charts
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            salesChartInstance = new Chart(salesCtx, {
+                type: 'bar',
+                data: {
+                    labels: products.map(p => p.name),
+                    datasets: [{ label: 'Units Sold', data: products.map(p => p.sold), backgroundColor: '#3b82f6' }]
+                },
+                options: { responsive: true, plugins: { title: { display: true, text: 'Sales Performance' } } }
+            });
+
+            const stockCtx = document.getElementById('stockChart').getContext('2d');
+            stockChartInstance = new Chart(stockCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['In Stock', 'Empty Slots'],
+                    datasets: [{ data: [products.reduce((s, p) => s + p.stock, 0), products.reduce((s, p) => s + p.par, 0) - products.reduce((s,p) => s + p.stock, 0)], backgroundColor: ['#10b981', '#ef4444'] }]
+                },
+                options: { responsive: true, plugins: { title: { display: true, text: 'Overall Stock Level' } } }
+            });
+        };
+
+        // --- CUSTOMER VIEW FUNCTIONS ---
 
         const renderProducts = () => {
+            const productGrid = document.getElementById('product-grid');
             productGrid.innerHTML = '';
             products.forEach(product => {
                 const isOutOfStock = product.stock === 0;
                 const productEl = document.createElement('div');
                 productEl.className = `product-card bg-white border border-gray-200 rounded-2xl p-3 text-center cursor-pointer flex flex-col justify-between ${isOutOfStock ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`;
                 productEl.dataset.productId = product.id;
-                
                 productEl.innerHTML = `
-                    <div class="relative">
-                        <img src="${product.image}" alt="${product.name}" class="w-full h-28 object-contain rounded-md mb-2 product-card-image" onerror="this.src='https://placehold.co/200x200/cccccc/ffffff?text=Image+Error'">
-                        ${isOutOfStock ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl"><span class="text-white font-bold text-sm tracking-wider">OUT OF STOCK</span></div>' : ''}
-                    </div>
-                    <div>
-                        <h3 class="font-semibold text-sm leading-tight mt-2">${product.name}</h3>
-                        <p class="text-gray-800 font-bold text-md mt-1">₹${product.price.toFixed(2)}</p>
-                    </div>
-                `;
-
-                if (!isOutOfStock) {
-                    productEl.addEventListener('click', () => showProductDetails(product.id));
-                }
+                    <div class="relative"><img src="${product.image}" alt="${product.name}" class="w-full h-28 object-contain rounded-md mb-2" onerror="this.src='https://placehold.co/200x200/cccccc/ffffff?text=Error'">
+                    ${isOutOfStock ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl"><span class="text-white font-bold text-sm tracking-wider">OUT OF STOCK</span></div>' : ''}</div>
+                    <div><h3 class="font-semibold text-sm leading-tight mt-2">${product.name}</h3><p class="text-gray-800 font-bold text-md mt-1">₹${product.price.toFixed(2)}</p></div>`;
+                if (!isOutOfStock) productEl.addEventListener('click', () => showProductDetails(product.id));
                 productGrid.appendChild(productEl);
             });
         };
 
         const renderCart = () => {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartEmptyMessage = document.getElementById('cart-empty-message');
+            const cartTotalEl = document.getElementById('cart-total');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+
             cartItemsContainer.innerHTML = '';
             const cartProductIds = Object.keys(cart);
 
             if (cartProductIds.length === 0) {
-                 cartItemsContainer.appendChild(cartEmptyMessage);
+                cartItemsContainer.appendChild(cartEmptyMessage);
             } else {
                 cartProductIds.forEach(productId => {
                     const product = products.find(p => p.id == productId);
@@ -306,185 +349,175 @@
                     cartItemEl.className = 'flex justify-between items-center mb-3 p-2 bg-gray-50 rounded-xl';
                     cartItemEl.innerHTML = `
                         <div class="flex items-center gap-3">
-                             <img src="${product.image}" class="w-12 h-12 object-contain rounded-lg bg-white p-1" onerror="this.src='https://placehold.co/100x100/cccccc/ffffff?text=Err'">
-                             <div>
-                                <p class="font-semibold text-sm">${product.name}</p>
-                                <p class="text-xs text-gray-500">₹${product.price.toFixed(2)} x ${quantity}</p>
-                             </div>
+                            <img src="${product.image}" class="w-12 h-12 object-contain rounded-lg bg-white p-1" onerror="this.src='https://placehold.co/100x100/cccccc/ffffff?text=Err'">
+                            <div><p class="font-semibold text-sm">${product.name}</p><p class="text-xs text-gray-500">₹${product.price.toFixed(2)} x ${quantity}</p></div>
                         </div>
                         <div class="flex items-center gap-2">
                             <button class="cart-quantity-btn w-7 h-7 flex items-center justify-center rounded-full bg-gray-200 hover:bg-red-200 text-red-600" data-product-id="${product.id}" data-action="decrease"><i class="fas fa-minus text-xs"></i></button>
                             <span class="font-bold w-5 text-center">${quantity}</span>
                             <button class="cart-quantity-btn w-7 h-7 flex items-center justify-center rounded-full bg-gray-200 hover:bg-green-200 text-green-600" data-product-id="${product.id}" data-action="increase"><i class="fas fa-plus text-xs"></i></button>
-                        </div>
-                    `;
+                        </div>`;
                     cartItemsContainer.appendChild(cartItemEl);
                 });
+                cartItemsContainer.addEventListener('click', (e) => {
+                    const button = e.target.closest('.cart-quantity-btn');
+                    if (button) updateQuantity(button.dataset.productId, button.dataset.action);
+                });
             }
-            updateCartTotal();
-        };
-        
-        const getCartTotal = () => {
-             return Object.keys(cart).reduce((sum, productId) => {
-                const product = products.find(p => p.id == productId);
-                return sum + (product.price * cart[productId]);
-            }, 0);
-        }
-
-        const updateCartTotal = () => {
             const total = getCartTotal();
             cartTotalEl.textContent = `₹${total.toFixed(2)}`;
-            const hasItems = Object.keys(cart).length > 0;
-            checkoutBtn.disabled = !hasItems;
-            cancelBtn.disabled = !hasItems;
+            checkoutBtn.disabled = total === 0;
+            cancelBtn.disabled = total === 0;
         };
+
+        const getCartTotal = () => Object.keys(cart).reduce((sum, id) => sum + (products.find(p => p.id == id).price * cart[id]), 0);
 
         const updateQuantity = (productId, action) => {
             const product = products.find(p => p.id == productId);
             let currentQuantity = cart[productId] || 0;
-
-            if (action === 'increase' && currentQuantity < product.stock) {
-                cart[productId] = currentQuantity + 1;
-            } else if (action === 'decrease') {
+            if (action === 'increase' && currentQuantity < product.stock) cart[productId] = currentQuantity + 1;
+            else if (action === 'decrease') {
                 cart[productId] = currentQuantity - 1;
-                if (cart[productId] <= 0) {
-                    delete cart[productId];
-                }
+                if (cart[productId] <= 0) delete cart[productId];
             }
             renderCart();
         };
+
+        // --- MODAL & CHECKOUT FUNCTIONS ---
 
         const showProductDetails = (productId) => {
             const product = products.find(p => p.id === productId);
             modalContent.innerHTML = `
                 <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
                 <div class="text-center">
-                    <img src="${product.image}" class="w-40 h-40 mx-auto object-contain mb-4" onerror="this.src='https://placehold.co/200x200/cccccc/ffffff?text=Image+Error'">
-                    <h2 class="text-3xl font-bold">${product.name}</h2>
-                    <p class="text-2xl font-semibold text-blue-600 my-2">₹${product.price.toFixed(2)}</p>
+                    <img src="${product.image}" class="w-40 h-40 mx-auto object-contain mb-4" onerror="this.src='https://placehold.co/200x200/cccccc/ffffff?text=Error'">
+                    <h2 class="text-3xl font-bold">${product.name}</h2><p class="text-2xl font-semibold text-blue-600 my-2">₹${product.price.toFixed(2)}</p>
                     <div class="text-left text-sm text-gray-600 my-4 p-4 bg-gray-50 rounded-xl border">
                         <p><strong><i class="fas fa-cookie-bite mr-2 text-gray-400"></i>Nutrition:</strong> ${product.nutrition}</p>
                         <p class="mt-2"><strong><i class="fas fa-exclamation-triangle mr-2 text-gray-400"></i>Allergens:</strong> ${product.allergens}</p>
                     </div>
-                    <button id="add-to-cart-modal" class="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-blue-700 transition-transform transform hover:scale-105">
-                        <i class="fas fa-cart-plus mr-2"></i>Add to Cart
-                    </button>
-                </div>
-            `;
+                    <button id="add-to-cart-modal" class="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-blue-700 transition-transform transform hover:scale-105"><i class="fas fa-cart-plus mr-2"></i>Add to Cart</button>
+                </div>`;
             openModal();
-            document.getElementById('add-to-cart-modal').addEventListener('click', () => {
-                updateQuantity(product.id, 'increase');
-                closeModal();
-            });
+            document.getElementById('add-to-cart-modal').addEventListener('click', () => { updateQuantity(product.id, 'increase'); closeModal(); });
             document.getElementById('close-modal').addEventListener('click', closeModal);
         };
         
         const showCheckout = () => {
             modalContent.innerHTML = `
-                 <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
-                 <h2 class="text-3xl font-bold mb-4 text-center">Payment</h2>
-                 <p class="text-gray-600 mb-6 text-center">How would you like to pay?</p>
-                 <div class="space-y-3">
-                     <button class="payment-option w-full flex items-center justify-center p-4 border rounded-xl text-lg font-semibold hover:bg-gray-100 hover:border-blue-500 transition-all" data-method="card"><i class="fas fa-credit-card mr-3 text-blue-600"></i>Card / UPI</button>
-                     <button class="payment-option w-full flex items-center justify-center p-4 border rounded-xl text-lg font-semibold hover:bg-gray-100 hover:border-green-500 transition-all" data-method="cash"><i class="fas fa-money-bill-wave mr-3 text-green-600"></i>Pay with Cash</button>
-                 </div>
-            `;
+                <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
+                <h2 class="text-3xl font-bold mb-4 text-center">Payment</h2><p class="text-gray-600 mb-6 text-center">How would you like to pay?</p>
+                <div class="space-y-3">
+                    <button class="payment-option w-full flex items-center justify-center p-4 border rounded-xl text-lg font-semibold hover:bg-gray-100" data-method="card"><i class="fas fa-credit-card mr-3 text-blue-600"></i>Card / UPI</button>
+                    <button class="payment-option w-full flex items-center justify-center p-4 border rounded-xl text-lg font-semibold hover:bg-gray-100" data-method="cash"><i class="fas fa-money-bill-wave mr-3 text-green-600"></i>Pay with Cash</button>
+                </div>`;
             openModal();
             document.getElementById('close-modal').addEventListener('click', closeModal);
-            document.querySelectorAll('.payment-option').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    const method = e.currentTarget.dataset.method;
-                    processCardPayment(); // Simplified for this demo to go to processing
-                });
+            document.querySelectorAll('.payment-option').forEach(btn => btn.addEventListener('click', (e) => {
+                const method = e.currentTarget.dataset.method;
+                if (method === 'card') processCardPayment(); else if (method === 'cash') showCashPaymentUI();
+            }));
+        };
+
+        const showCashPaymentUI = () => {
+            let amountInserted = 0;
+            const totalDue = getCartTotal();
+            const notes = [10, 20, 50, 100, 200, 500];
+            modalContent.innerHTML = `
+                <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
+                <h2 class="text-2xl font-bold mb-2">Cash Payment</h2>
+                <div class="bg-gray-100 p-4 rounded-lg my-4 text-center">
+                    <div class="grid grid-cols-3 gap-2">
+                        <div><p class="text-sm text-gray-500">Total Due</p><p class="font-bold text-xl">₹${totalDue.toFixed(2)}</p></div>
+                        <div><p class="text-sm text-gray-500">Inserted</p><p class="font-bold text-xl text-blue-600" id="amount-inserted-val">₹0.00</p></div>
+                        <div><p class="text-sm text-gray-500">Change</p><p class="font-bold text-xl text-green-600" id="change-due-val">₹0.00</p></div>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4 text-center">Please insert notes.</p>
+                <div class="grid grid-cols-3 gap-3 mb-6">
+                    ${notes.map(note => `<button class="cash-btn p-3 border rounded-lg font-semibold hover:bg-gray-100" data-value="${note}">₹${note}</button>`).join('')}
+                </div>
+                <button id="finalize-cash-payment" class="w-full bg-gray-400 text-white py-3 rounded-lg text-lg font-bold cursor-not-allowed" disabled>Complete Purchase</button>`;
+
+            const updateUI = () => {
+                const changeDue = Math.max(0, amountInserted - totalDue);
+                document.getElementById('amount-inserted-val').textContent = `₹${amountInserted.toFixed(2)}`;
+                document.getElementById('change-due-val').textContent = `₹${changeDue.toFixed(2)}`;
+                const finalizeBtn = document.getElementById('finalize-cash-payment');
+                finalizeBtn.disabled = amountInserted < totalDue;
+                if (!finalizeBtn.disabled) {
+                    finalizeBtn.classList.replace('bg-gray-400', 'bg-green-500');
+                    finalizeBtn.classList.remove('cursor-not-allowed');
+                }
+            };
+            
+            document.querySelectorAll('.cash-btn').forEach(btn => btn.addEventListener('click', (e) => {
+                amountInserted += parseFloat(e.currentTarget.dataset.value);
+                updateUI();
+            }));
+
+            document.getElementById('finalize-cash-payment').addEventListener('click', () => {
+                const change = Math.max(0, amountInserted - totalDue);
+                finishTransaction(`Please collect your items and ₹${change.toFixed(2)} change.`);
             });
+            document.getElementById('close-modal').addEventListener('click', closeModal);
         };
 
         const processCardPayment = () => {
-            modalContent.innerHTML = `
-                <div class="text-center py-8">
-                    <div class="relative w-20 h-20 mx-auto">
-                        <div class="absolute inset-0 border-4 border-blue-200 rounded-full"></div>
-                        <div class="absolute inset-0 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div>
-                    </div>
-                    <p class="mt-6 text-xl font-semibold">Processing Payment...</p>
-                    <p class="text-sm text-gray-500">Please tap your card on the terminal</p>
-                </div>
-            `;
-            setTimeout(() => {
-                // Deduct stock
-                Object.keys(cart).forEach(id => {
-                    const product = products.find(p => p.id == id);
-                    if (product) product.stock -= cart[id];
-                });
-                finishTransaction("Payment Successful! Please collect your items from the tray below.");
-            }, 2500);
+            modalContent.innerHTML = `<div class="text-center py-8"><div class="relative w-20 h-20 mx-auto"><div class="absolute inset-0 border-4 border-blue-200 rounded-full"></div><div class="absolute inset-0 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div></div><p class="mt-6 text-xl font-semibold">Processing Payment...</p><p class="text-sm text-gray-500">Please tap your card</p></div>`;
+            setTimeout(() => finishTransaction("Payment Successful! Please collect your items."), 2500);
         };
 
         const finishTransaction = (message) => {
-            modalContent.innerHTML = `
-                <div class="text-center py-8">
-                    <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto">
-                        <i class="fas fa-check fa-3x text-green-500"></i>
-                    </div>
-                    <p class="mt-6 text-xl font-semibold">Transaction Complete!</p>
-                    <p class="text-gray-600 mt-2">${message}</p>
-                </div>
-            `;
+            Object.keys(cart).forEach(id => {
+                const product = products.find(p => p.id == id);
+                if (product) {
+                    product.stock -= cart[id];
+                    product.sold += cart[id];
+                }
+            });
+            modalContent.innerHTML = `<div class="text-center py-8"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-check fa-3x text-green-500"></i></div><p class="mt-6 text-xl font-semibold">Transaction Complete!</p><p class="text-gray-600 mt-2">${message}</p></div>`;
             cart = {};
-            setTimeout(() => {
-                closeModal();
-                renderCart();
-                renderProducts(); // Re-render to show updated stock
-            }, 3000);
+            setTimeout(() => { closeModal(); renderCustomerView(); }, 3000);
         }
         
         const openModal = () => {
             modal.classList.remove('hidden');
             modal.classList.add('flex', 'modal-enter');
             modalContent.classList.add('modal-content-enter');
-            modalContent.classList.remove('modal-content-leave');
-            modal.classList.remove('modal-leave');
         };
 
         const closeModal = () => {
-            modal.classList.add('modal-leave');
-            modalContent.classList.add('modal-content-leave');
+            modal.classList.add('hidden');
+            modal.classList.remove('flex', 'modal-enter');
             modalContent.classList.remove('modal-content-enter');
-             
-            setTimeout(() => {
-                modal.classList.add('hidden');
-                modal.classList.remove('flex', 'modal-enter', 'modal-leave');
-            }, 300);
         };
-        
-        // --- EVENT LISTENERS ---
-        checkoutBtn.addEventListener('click', showCheckout);
-        
-        cancelBtn.addEventListener('click', () => {
-            cart = {};
-            renderCart();
-        });
-        
-        cartItemsContainer.addEventListener('click', (e) => {
-            const button = e.target.closest('.cart-quantity-btn');
-            if (button) {
-                const { productId, action } = button.dataset;
-                updateQuantity(productId, action);
+
+        // --- VIEW SWITCHING ---
+        const switchView = (isCustomerView) => {
+            if (isCustomerView) {
+                customerView.classList.remove('hidden');
+                operatorView.classList.add('hidden');
+                customerViewBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+                operatorViewBtn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                renderCustomerView();
+            } else {
+                customerView.classList.add('hidden');
+                operatorView.classList.remove('hidden');
+                operatorViewBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+                customerViewBtn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                renderDashboard();
             }
-        });
-        
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeModal();
-        });
+        };
+
+        customerViewBtn.addEventListener('click', () => switchView(true));
+        operatorViewBtn.addEventListener('click', () => switchView(false));
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
 
         // --- INITIALIZATION ---
-        const initialize = () => {
-            renderProducts();
-            renderCart();
-        };
-
-        initialize();
+        switchView(true);
     });
     </script>
 </body>
 </html>
+
