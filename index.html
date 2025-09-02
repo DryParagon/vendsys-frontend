@@ -30,8 +30,8 @@
             border-radius: 2.5rem;
             padding: 1rem;
             box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.4), 
-                         inset 0 4px 8px rgba(255, 255, 255, 0.05),
-                         inset 0 -4px 8px rgba(0, 0, 0, 0.2);
+                          inset 0 4px 8px rgba(255, 255, 255, 0.05),
+                          inset 0 -4px 8px rgba(0, 0, 0, 0.2);
             max-width: 1400px;
             margin: 2rem auto;
             border: 1px solid #4b5563;
@@ -125,34 +125,31 @@
     <div class="vending-machine-frame">
         <div class="screen-area">
              <div id="app" class="p-4 md:p-6 bg-gray-50 text-gray-900">
-                <header class="max-w-7xl mx-auto mb-6">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <svg class="w-10 h-10 text-blue-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 7L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 7L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 4.5L12 9L4 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 9.5V14.5L12 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                            <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Vend<span class="text-blue-600">Sys</span></h1>
-                        </div>
-                        <div class="flex items-center bg-gray-200 rounded-full p-1 shadow-inner">
-                            <button id="customer-view-btn" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full shadow-md">
-                                <i class="fas fa-shopping-basket mr-2"></i>Shop
-                            </button>
-                            <button id="operator-view-btn" class="px-4 py-2 text-sm font-semibold text-gray-600 rounded-full">
-                                <i class="fas fa-chart-line mr-2"></i>Dashboard
-                            </button>
-                        </div>
-                    </div>
-                </header>
+                 <header class="max-w-7xl mx-auto mb-6">
+                     <div class="flex items-center justify-between">
+                         <div class="flex items-center gap-3">
+                             <svg class="w-10 h-10 text-blue-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 7L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 7L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 4.5L12 9L4 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 9.5V14.5L12 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                             <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Vend<span class="text-blue-600">Sys</span></h1>
+                         </div>
+                         <div class="flex items-center bg-gray-200 rounded-full p-1 shadow-inner">
+                             <button id="customer-view-btn" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full shadow-md">
+                                 <i class="fas fa-shopping-basket mr-2"></i>Shop
+                             </button>
+                             <button id="operator-view-btn" class="px-4 py-2 text-sm font-semibold text-gray-600 rounded-full">
+                                 <i class="fas fa-chart-line mr-2"></i>Dashboard
+                             </button>
+                         </div>
+                     </div>
+                 </header>
 
-                <main id="customer-view">
-                    <!-- Customer shopping view content -->
-                </main>
+                 <main id="customer-view">
+                     </main>
 
-                <main id="operator-view" class="hidden">
-                     <!-- Operator dashboard content is generated here by JS -->
-                </main>
-            </div>
+                 <main id="operator-view" class="hidden">
+                      </main>
+             </div>
         </div>
 
-        <!-- Physical Machine Components -->
         <div class="machine-components">
             <div class="delivery-bin">
                 <p class="text-lg font-bold tracking-widest">COLLECTION TRAY</p>
@@ -174,25 +171,23 @@
         </div>
     </div>
 
-    <!-- Modal Container -->
     <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
         <div id="modal-content" class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
-           <!-- Modal content is dynamically injected here -->
-        </div>
+           </div>
     </div>
 
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         // --- DATA ---
         let products = [
-             { id: 1, name: 'Coca-Cola Classic', price: 40, image: 'https://cdn.uengage.io/uploads/18085/image-179182-1711711756.jpeg', stock: 15, par: 20, sold: 5 },
-             { id: 2, name: 'Lay\'s Classic', price: 30, image: 'https://m.media-amazon.com/images/I/61e+UwnsWwL._UF894,1000_QL80_.jpg', stock: 8, par: 15, sold: 12 },
-             { id: 3, name: 'Pepsi', price: 40, image: 'https://progressfin.co.in/wp-content/uploads/2024/08/pepsi.jpg', stock: 18, par: 20, sold: 7 },
-             { id: 4, name: 'Amul Lassi', price: 25, image: 'https://nativall.myshopify.com/cdn/shop/products/1SdwVwMUk-MZB6c3enPMXKwk_8UqlDL8c.png?v=1591469408&width=1445', stock: 4, par: 15, sold: 11 },
-             { id: 5, name: 'Kinley Water', price: 20, image: 'https://www.coca-cola.com/content/dam/onexp/in/en/home-page-test-img/brands/kinley/kinley%20desktop.jpg', stock: 20, par: 20, sold: 15 },
-             { id: 6, name: 'Cadbury Dairy Milk', price: 20, image: 'https://leeladharstores.com/image/cache/catalog/category/desserts%20and%20confectionery_/chocolates/Cadbury%2010%20Dairy%20Milk%20Chocolate%20Bar%20200G-500x500.jpg', stock: 12, par: 25, sold: 23 },
-             { id: 7, name: 'Kurkure Masala Munch', price: 20, image: 'https://sheikhgroup.in/wp-content/uploads/2023/07/71sOPzrW0mL._SL1500_.jpg', stock: 0, par: 15, sold: 15 },
-             { id: 8, name: 'Good Day Cookies', price: 10, image: 'https://m.media-amazon.com/images/I/61IhdI0oN8L.jpg', stock: 10, par: 20, sold: 10 },
+             { id: 1, name: 'Coca-Cola Classic', price: 40, image: 'https://cdn.uengage.io/uploads/18085/image-179182-1711711756.jpeg', stock: 15, par: 20, sold: 5, nutrition: 'Approx. 140 calories, 39g sugar.', allergens: 'None.' },
+             { id: 2, name: 'Lay\'s Classic', price: 30, image: 'https://m.media-amazon.com/images/I/61e+UwnsWwL._UF894,1000_QL80_.jpg', stock: 8, par: 15, sold: 12, nutrition: 'Approx. 160 calories, 10g fat.', allergens: 'None specified, check packaging.' },
+             { id: 3, name: 'Pepsi', price: 40, image: 'https://progressfin.co.in/wp-content/uploads/2024/08/pepsi.jpg', stock: 18, par: 20, sold: 7, nutrition: 'Approx. 150 calories, 41g sugar.', allergens: 'None.' },
+             { id: 4, name: 'Amul Lassi', price: 25, image: 'https://nativall.myshopify.com/cdn/shop/products/1SdwVwMUk-MZB6c3enPMXKwk_8UqlDL8c.png?v=1591469408&width=1445', stock: 4, par: 15, sold: 11, nutrition: 'Good source of calcium and protein.', allergens: 'Contains Milk.' },
+             { id: 5, name: 'Kinley Water', price: 20, image: 'https://www.coca-cola.com/content/dam/onexp/in/en/home-page-test-img/brands/kinley/kinley%20desktop.jpg', stock: 20, par: 20, sold: 15, nutrition: '0 calories, 0 sugar. Added minerals.', allergens: 'None.' },
+             { id: 6, name: 'Cadbury Dairy Milk', price: 20, image: 'https://leeladharstores.com/image/cache/catalog/category/desserts%20and%20confectionery_/chocolates/Cadbury%2010%20Dairy%20Milk%20Chocolate%20Bar%20200G-500x500.jpg', stock: 12, par: 25, sold: 23, nutrition: 'Approx. 240 calories per 45g bar.', allergens: 'Contains Milk, Soy. May contain nuts.' },
+             { id: 7, name: 'Kurkure Masala Munch', price: 20, image: 'https://sheikhgroup.in/wp-content/uploads/2023/07/71sOPzrW0mL._SL1500_.jpg', stock: 0, par: 15, sold: 15, nutrition: 'Spicy puffed corn snack.', allergens: 'Contains Wheat (Gluten), Soy.' },
+             { id: 8, name: 'Good Day Cookies', price: 10, image: 'https://m.media-amazon.com/images/I/61IhdI0oN8L.jpg', stock: 10, par: 20, sold: 10, nutrition: 'Classic butter cookies.', allergens: 'Contains Wheat (Gluten), Milk, Soy.' },
         ];
         let cart = {}; 
         let salesChartInstance = null;
@@ -222,11 +217,11 @@
                        <button id="cancel-btn" class="px-3 py-1 text-xs font-semibold text-red-600 bg-red-100 rounded-full hover:bg-red-200" disabled>Clear All</button>
                     </div>
                     <div id="cart-items" class="flex-grow overflow-y-auto custom-scrollbar pr-2 min-h-[250px]">
-                       <div id="cart-empty-message" class="text-center text-gray-400 mt-12 flex flex-col items-center justify-center h-full">
+                        <div id="cart-empty-message" class="text-center text-gray-400 mt-12 flex flex-col items-center justify-center h-full">
                             <i class="fas fa-cart-plus fa-4x mb-4"></i>
                             <p class="font-semibold">Your cart is empty</p>
                             <p class="text-sm">Start by adding items!</p>
-                       </div>
+                        </div>
                     </div>
                     <div class="mt-auto pt-4 border-t-2 border-dashed">
                         <div class="flex justify-between items-center text-xl font-bold mb-4">
@@ -241,9 +236,18 @@
             </div>`;
             renderProducts();
             renderCart();
-            // Re-add event listeners for the newly created elements
-            document.getElementById('checkout-btn').addEventListener('click', showCheckout);
-            document.getElementById('cancel-btn').addEventListener('click', () => { cart = {}; renderCart(); });
+            addCustomerViewEventListeners(); // Attach event listeners once
+        };
+        
+        const addCustomerViewEventListeners = () => {
+             document.getElementById('checkout-btn').addEventListener('click', showCheckout);
+             document.getElementById('cancel-btn').addEventListener('click', () => { cart = {}; renderCart(); });
+             document.getElementById('cart-items').addEventListener('click', (e) => {
+                const button = e.target.closest('.cart-quantity-btn');
+                if (button) {
+                    updateQuantity(button.dataset.productId, button.dataset.action);
+                }
+             });
         };
 
         const renderDashboard = () => {
@@ -255,18 +259,15 @@
 
             operatorView.innerHTML = `
             <div class="max-w-7xl mx-auto space-y-6">
-                <!-- Stats Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div class="bg-white p-6 rounded-2xl shadow-md border"><h3 class="text-gray-500">Total Revenue</h3><p class="text-3xl font-bold">₹${totalRevenue.toFixed(2)}</p></div>
                     <div class="bg-white p-6 rounded-2xl shadow-md border"><h3 class="text-gray-500">Items Sold (Today)</h3><p class="text-3xl font-bold">${products.reduce((s, p) => s + p.sold, 0)}</p></div>
                     <div class="bg-white p-6 rounded-2xl shadow-md border"><h3 class="text-gray-500">Needs Restock</h3><p class="text-3xl font-bold">${itemsToRestock}</p></div>
                 </div>
-                <!-- Charts -->
                 <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
                     <div class="lg:col-span-3 bg-white p-6 rounded-2xl shadow-md border"><canvas id="salesChart"></canvas></div>
                     <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md border"><canvas id="stockChart"></canvas></div>
                 </div>
-                <!-- Inventory Table -->
                 <div class="bg-white p-6 rounded-2xl shadow-md border">
                     <h3 class="text-xl font-bold mb-4">Inventory Status</h3>
                     <div class="overflow-x-auto">
@@ -336,6 +337,7 @@
             const checkoutBtn = document.getElementById('checkout-btn');
             const cancelBtn = document.getElementById('cancel-btn');
 
+            // Store the empty message element before clearing, then re-append if needed.
             cartItemsContainer.innerHTML = '';
             const cartProductIds = Object.keys(cart);
 
@@ -358,10 +360,6 @@
                             <button class="cart-quantity-btn w-7 h-7 flex items-center justify-center rounded-full bg-gray-200 hover:bg-green-200 text-green-600" data-product-id="${product.id}" data-action="increase"><i class="fas fa-plus text-xs"></i></button>
                         </div>`;
                     cartItemsContainer.appendChild(cartItemEl);
-                });
-                cartItemsContainer.addEventListener('click', (e) => {
-                    const button = e.target.closest('.cart-quantity-btn');
-                    if (button) updateQuantity(button.dataset.productId, button.dataset.action);
                 });
             }
             const total = getCartTotal();
@@ -520,4 +518,3 @@
     </script>
 </body>
 </html>
-
