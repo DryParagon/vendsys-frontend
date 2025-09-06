@@ -1,3 +1,544 @@
+<<<<<<< HEAD
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VendSys - Smart Vending Solutions</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* --- Base Styles --- */
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            background-color: #f0f2f5;
+        }
+        /* --- Custom Scrollbar --- */
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #e2e8f0; border-radius: 10px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #a0aec0; border-radius: 10px; border: 2px solid #e2e8f0; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #718096; }
+
+        /* --- Vending Machine Frame --- */
+        .vending-machine-frame {
+            background: linear-gradient(145deg, #1f2937, #111827);
+            border-radius: 2.5rem;
+            padding: 1rem;
+            box-shadow: 0 35px 60px -15px rgba(0, 0, 0, 0.4), 
+                          inset 0 4px 8px rgba(255, 255, 255, 0.05),
+                          inset 0 -4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 1400px;
+            margin: 2rem auto;
+            border: 1px solid #4b5563;
+        }
+        .screen-area {
+            background-color: #0a0a0a;
+            border: 6px solid #374151;
+            border-radius: 2rem;
+            overflow: hidden;
+            box-shadow: inset 0 0 25px rgba(0,0,0,0.75);
+        }
+        .machine-components {
+            display: grid;
+            grid-template-columns: 1fr 280px;
+            gap: 1.5rem;
+            margin-top: 1rem;
+            align-items: end;
+        }
+
+        /* --- Payment & Delivery Styling --- */
+        .payment-terminal {
+            background: #111827;
+            border-radius: 1.25rem;
+            padding: 1.5rem;
+            box-shadow: inset 0 3px 6px rgba(0,0,0,0.6), 0 1px 2px rgba(255,255,255,0.05);
+            border: 1px solid #374151;
+        }
+        .card-slot {
+            background: linear-gradient(#1f2937, #111827);
+            height: 14px;
+            border-radius: 4px;
+            margin: 1.25rem 0;
+            border: 1px solid #4b5563;
+            position: relative;
+            box-shadow: inset 0 2px 3px rgba(0,0,0,0.5);
+        }
+        .card-slot::after {
+            content: '';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 6px;
+            height: 6px;
+            background: #10b981;
+            border-radius: 50%;
+            box-shadow: 0 0 5px #10b981, 0 0 10px #10b981;
+            animation: blink 1.5s infinite ease-in-out;
+        }
+        @keyframes blink { 
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.2; } 
+        }
+        .delivery-bin {
+            background: #0a0a0a;
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+            color: #4b5563;
+            font-family: 'Roboto Mono', monospace;
+            box-shadow: inset 0 12px 20px -5px rgba(0,0,0,0.8);
+        }
+        .delivery-flap {
+            background: linear-gradient(#2d3748, #1f2937);
+            height: 60px;
+            margin-top: 0.5rem;
+            border-radius: 0.5rem;
+            border-top: 3px solid #718096;
+            cursor: pointer;
+        }
+        
+        /* --- Product Card Styling --- */
+        .product-card {
+            transition: all 0.3s ease;
+        }
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+            border-color: #3b82f6;
+        }
+        
+        /* --- Modal Animation --- */
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes scaleIn { from { transform: scale(0.95); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-enter { animation: fadeIn 0.3s ease forwards; }
+        .modal-content-enter { animation: scaleIn 0.3s ease forwards; }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="vending-machine-frame">
+        <div class="screen-area">
+             <div id="app" class="p-4 md:p-6 bg-gray-50 text-gray-900">
+                 <header class="max-w-7xl mx-auto mb-6">
+                     <div class="flex items-center justify-between">
+                         <div class="flex items-center gap-3">
+                             <svg class="w-10 h-10 text-blue-600" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7V17L12 22L22 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 7L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 7L12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 22V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M20 4.5L12 9L4 4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M17 9.5V14.5L12 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                             <h1 class="text-2xl font-extrabold text-gray-800 tracking-tight">Vend<span class="text-blue-600">Sys</span></h1>
+                         </div>
+                         <div class="flex items-center bg-gray-200 rounded-full p-1 shadow-inner">
+                             <button id="customer-view-btn" class="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full shadow-md">
+                                 <i class="fas fa-shopping-basket mr-2"></i>Shop
+                             </button>
+                             <button id="operator-view-btn" class="px-4 py-2 text-sm font-semibold text-gray-600 rounded-full">
+                                 <i class="fas fa-chart-line mr-2"></i>Dashboard
+                             </button>
+                         </div>
+                     </div>
+                 </header>
+
+                 <main id="customer-view">
+                     </main>
+
+                 <main id="operator-view" class="hidden">
+                      </main>
+             </div>
+        </div>
+
+        <div class="machine-components">
+            <div class="delivery-bin">
+                <p class="text-lg font-bold tracking-widest">COLLECTION TRAY</p>
+                <div class="delivery-flap"></div>
+            </div>
+            <div class="payment-terminal">
+                <div class="flex justify-between items-center">
+                    <p class="text-white font-bold text-lg">PAYMENT</p>
+                    <i class="fas fa-wifi text-blue-400 text-xl -rotate-45"></i>
+                </div>
+                <div class="card-slot"></div>
+                <div class="flex items-center justify-center gap-4 my-2">
+                    <i class="fab fa-cc-visa text-3xl text-gray-300"></i>
+                    <i class="fab fa-cc-mastercard text-3xl text-gray-300"></i>
+                    <img src="https://www.vectorlogo.zone/logos/upi/upi-icon.svg" class="h-6" alt="UPI"/>
+                </div>
+                <p class="text-xs text-gray-400 text-center font-mono">TAP / INSERT / SWIPE</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center p-4 z-50 backdrop-blur-sm">
+        <div id="modal-content" class="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 relative">
+           </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- DATA ---
+        let products = [
+             { id: 1, name: 'Coca-Cola Classic', price: 40, image: 'https://cdn.uengage.io/uploads/18085/image-179182-1711711756.jpeg', stock: 15, par: 20, sold: 5, nutrition: 'Approx. 140 calories, 39g sugar.', allergens: 'None.' },
+             { id: 2, name: 'Lay\'s Classic', price: 30, image: 'https://m.media-amazon.com/images/I/61e+UwnsWwL._UF894,1000_QL80_.jpg', stock: 8, par: 15, sold: 12, nutrition: 'Approx. 160 calories, 10g fat.', allergens: 'None specified, check packaging.' },
+             { id: 3, name: 'Pepsi', price: 40, image: 'https://progressfin.co.in/wp-content/uploads/2024/08/pepsi.jpg', stock: 18, par: 20, sold: 7, nutrition: 'Approx. 150 calories, 41g sugar.', allergens: 'None.' },
+             { id: 4, name: 'Amul Lassi', price: 25, image: 'https://nativall.myshopify.com/cdn/shop/products/1SdwVwMUk-MZB6c3enPMXKwk_8UqlDL8c.png?v=1591469408&width=1445', stock: 4, par: 15, sold: 11, nutrition: 'Good source of calcium and protein.', allergens: 'Contains Milk.' },
+             { id: 5, name: 'Kinley Water', price: 20, image: 'https://www.coca-cola.com/content/dam/onexp/in/en/home-page-test-img/brands/kinley/kinley%20desktop.jpg', stock: 20, par: 20, sold: 15, nutrition: '0 calories, 0 sugar. Added minerals.', allergens: 'None.' },
+             { id: 6, name: 'Cadbury Dairy Milk', price: 20, image: 'https://leeladharstores.com/image/cache/catalog/category/desserts%20and%20confectionery_/chocolates/Cadbury%2010%20Dairy%20Milk%20Chocolate%20Bar%20200G-500x500.jpg', stock: 12, par: 25, sold: 23, nutrition: 'Approx. 240 calories per 45g bar.', allergens: 'Contains Milk, Soy. May contain nuts.' },
+             { id: 7, name: 'Kurkure Masala Munch', price: 20, image: 'https://sheikhgroup.in/wp-content/uploads/2023/07/71sOPzrW0mL._SL1500_.jpg', stock: 0, par: 15, sold: 15, nutrition: 'Spicy puffed corn snack.', allergens: 'Contains Wheat (Gluten), Soy.' },
+             { id: 8, name: 'Good Day Cookies', price: 10, image: 'https://m.media-amazon.com/images/I/61IhdI0oN8L.jpg', stock: 10, par: 20, sold: 10, nutrition: 'Classic butter cookies.', allergens: 'Contains Wheat (Gluten), Milk, Soy.' },
+        ];
+        let cart = {}; 
+        let salesChartInstance = null;
+        let stockChartInstance = null;
+
+        // --- DOM ELEMENT REFERENCES ---
+        const customerViewBtn = document.getElementById('customer-view-btn');
+        const operatorViewBtn = document.getElementById('operator-view-btn');
+        const customerView = document.getElementById('customer-view');
+        const operatorView = document.getElementById('operator-view');
+        const modal = document.getElementById('modal');
+        const modalContent = document.getElementById('modal-content');
+        
+        // --- VIEW RENDERING ---
+
+        const renderCustomerView = () => {
+            customerView.innerHTML = `
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 max-w-7xl mx-auto">
+                <div class="lg:col-span-2 bg-white/70 backdrop-blur-sm p-6 rounded-3xl shadow-lg border border-gray-200">
+                    <h2 class="text-3xl font-bold mb-1 text-gray-800">Choose Your Snack</h2>
+                    <p class="text-gray-500 mb-6">Tap on an item to view details and add it to your cart.</p>
+                    <div id="product-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"></div>
+                </div>
+                <div class="bg-white p-6 rounded-3xl shadow-lg flex flex-col border border-gray-200">
+                    <div class="flex justify-between items-center border-b pb-3 mb-4">
+                       <h2 class="text-2xl font-bold flex items-center gap-3"><i class="fas fa-shopping-cart text-blue-500"></i>Your Order</h2>
+                       <button id="cancel-btn" class="px-3 py-1 text-xs font-semibold text-red-600 bg-red-100 rounded-full hover:bg-red-200" disabled>Clear All</button>
+                    </div>
+                    <div id="cart-items" class="flex-grow overflow-y-auto custom-scrollbar pr-2 min-h-[250px]">
+                        <div id="cart-empty-message" class="text-center text-gray-400 mt-12 flex flex-col items-center justify-center h-full">
+                            <i class="fas fa-cart-plus fa-4x mb-4"></i>
+                            <p class="font-semibold">Your cart is empty</p>
+                            <p class="text-sm">Start by adding items!</p>
+                        </div>
+                    </div>
+                    <div class="mt-auto pt-4 border-t-2 border-dashed">
+                        <div class="flex justify-between items-center text-xl font-bold mb-4">
+                            <span>Total:</span>
+                            <span id="cart-total">₹0.00</span>
+                        </div>
+                        <button id="checkout-btn" class="w-full bg-green-500 text-white py-3.5 rounded-xl text-lg font-bold hover:bg-green-600 transition-all duration-300 transform hover:scale-105 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:transform-none shadow-lg shadow-green-500/20" disabled>
+                            <i class="fas fa-shield-alt mr-2"></i>Secure Checkout
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+            renderProducts();
+            renderCart();
+            addCustomerViewEventListeners();
+        };
+        
+        const addCustomerViewEventListeners = () => {
+             document.getElementById('checkout-btn').addEventListener('click', showCheckout);
+             document.getElementById('cancel-btn').addEventListener('click', () => { cart = {}; renderCart(); });
+             document.getElementById('cart-items').addEventListener('click', (e) => {
+                const button = e.target.closest('.cart-quantity-btn');
+                if (button) {
+                    updateQuantity(button.dataset.productId, button.dataset.action);
+                }
+             });
+        };
+
+        const renderDashboard = () => {
+            if (salesChartInstance) salesChartInstance.destroy();
+            if (stockChartInstance) stockChartInstance.destroy();
+
+            const totalRevenue = products.reduce((sum, p) => sum + p.sold * p.price, 0);
+            const itemsToRestock = products.filter(p => p.stock < p.par).length;
+
+            operatorView.innerHTML = `
+            <div class="max-w-7xl mx-auto space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-6 rounded-2xl shadow-md border"><h3 class="text-gray-500">Total Revenue</h3><p class="text-3xl font-bold">₹${totalRevenue.toFixed(2)}</p></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-md border"><h3 class="text-gray-500">Items Sold (Today)</h3><p class="text-3xl font-bold">${products.reduce((s, p) => s + p.sold, 0)}</p></div>
+                    <div class="bg-white p-6 rounded-2xl shadow-md border"><h3 class="text-gray-500">Needs Restock</h3><p class="text-3xl font-bold">${itemsToRestock}</p></div>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
+                    <div class="lg:col-span-3 bg-white p-6 rounded-2xl shadow-md border"><canvas id="salesChart"></canvas></div>
+                    <div class="lg:col-span-2 bg-white p-6 rounded-2xl shadow-md border"><canvas id="stockChart"></canvas></div>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-md border">
+                    <h3 class="text-xl font-bold mb-4">Inventory Status</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left">
+                            <thead><tr class="border-b"><th class="p-2">Product</th><th class="p-2">Stock</th><th class="p-2">Par</th><th class="p-2">Status</th></tr></thead>
+                            <tbody id="inventory-table-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>`;
+
+            const tableBody = document.getElementById('inventory-table-body');
+            products.forEach(p => {
+                let status, statusColor;
+                if (p.stock === 0) { status = 'Empty'; statusColor = 'bg-red-100 text-red-700'; } 
+                else if (p.stock < p.par) { status = 'Low'; statusColor = 'bg-yellow-100 text-yellow-700'; }
+                else { status = 'OK'; statusColor = 'bg-green-100 text-green-700'; }
+                tableBody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2 font-semibold">${p.name}</td><td class="p-2">${p.stock}</td><td class="p-2">${p.par}</td><td class="p-2"><span class="px-2 py-1 text-xs font-semibold rounded-full ${statusColor}">${status}</span></td></tr>`;
+            });
+            
+            const salesCtx = document.getElementById('salesChart').getContext('2d');
+            salesChartInstance = new Chart(salesCtx, {
+                type: 'bar',
+                data: { labels: products.map(p => p.name), datasets: [{ label: 'Units Sold', data: products.map(p => p.sold), backgroundColor: '#3b82f6' }] },
+                options: { responsive: true, plugins: { title: { display: true, text: 'Sales Performance' } } }
+            });
+
+            const stockCtx = document.getElementById('stockChart').getContext('2d');
+            stockChartInstance = new Chart(stockCtx, {
+                type: 'doughnut',
+                data: { labels: ['In Stock', 'Empty Slots'], datasets: [{ data: [products.reduce((s, p) => s + p.stock, 0), products.reduce((s, p) => s + p.par, 0) - products.reduce((s,p) => s + p.stock, 0)], backgroundColor: ['#10b981', '#ef4444'] }] },
+                options: { responsive: true, plugins: { title: { display: true, text: 'Overall Stock Level' } } }
+            });
+        };
+
+        // --- CUSTOMER VIEW FUNCTIONS ---
+
+        const renderProducts = () => {
+            const productGrid = document.getElementById('product-grid');
+            productGrid.innerHTML = '';
+            products.forEach(product => {
+                const isOutOfStock = product.stock === 0;
+                const productEl = document.createElement('div');
+                productEl.className = `product-card bg-white border border-gray-200 rounded-2xl p-3 text-center cursor-pointer flex flex-col justify-between ${isOutOfStock ? 'opacity-50 cursor-not-allowed bg-gray-100' : ''}`;
+                productEl.dataset.productId = product.id;
+                productEl.innerHTML = `
+                    <div class="relative"><img src="${product.image}" alt="${product.name}" class="w-full h-28 object-contain rounded-md mb-2" onerror="this.src='https://placehold.co/200x200/cccccc/ffffff?text=Error'">
+                    ${isOutOfStock ? '<div class="absolute inset-0 bg-black/60 flex items-center justify-center rounded-2xl"><span class="text-white font-bold text-sm tracking-wider">OUT OF STOCK</span></div>' : ''}</div>
+                    <div><h3 class="font-semibold text-sm leading-tight mt-2">${product.name}</h3><p class="text-gray-800 font-bold text-md mt-1">₹${product.price.toFixed(2)}</p></div>`;
+                if (!isOutOfStock) productEl.addEventListener('click', () => showProductDetails(product.id));
+                productGrid.appendChild(productEl);
+            });
+        };
+
+        const renderCart = () => {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartEmptyMessage = document.getElementById('cart-empty-message');
+            const cartTotalEl = document.getElementById('cart-total');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const cancelBtn = document.getElementById('cancel-btn');
+            cartItemsContainer.innerHTML = '';
+            const cartProductIds = Object.keys(cart);
+            if (cartProductIds.length === 0) {
+                cartItemsContainer.appendChild(cartEmptyMessage);
+            } else {
+                cartProductIds.forEach(productId => {
+                    const product = products.find(p => p.id == productId);
+                    const quantity = cart[productId];
+                    const cartItemEl = document.createElement('div');
+                    cartItemEl.className = 'flex justify-between items-center mb-3 p-2 bg-gray-50 rounded-xl';
+                    cartItemEl.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${product.image}" class="w-12 h-12 object-contain rounded-lg bg-white p-1" onerror="this.src='https://placehold.co/100x100/cccccc/ffffff?text=Err'">
+                            <div><p class="font-semibold text-sm">${product.name}</p><p class="text-xs text-gray-500">₹${product.price.toFixed(2)} x ${quantity}</p></div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button class="cart-quantity-btn w-7 h-7 flex items-center justify-center rounded-full bg-gray-200 hover:bg-red-200 text-red-600" data-product-id="${product.id}" data-action="decrease"><i class="fas fa-minus text-xs"></i></button>
+                            <span class="font-bold w-5 text-center">${quantity}</span>
+                            <button class="cart-quantity-btn w-7 h-7 flex items-center justify-center rounded-full bg-gray-200 hover:bg-green-200 text-green-600" data-product-id="${product.id}" data-action="increase"><i class="fas fa-plus text-xs"></i></button>
+                        </div>`;
+                    cartItemsContainer.appendChild(cartItemEl);
+                });
+            }
+            const total = getCartTotal();
+            cartTotalEl.textContent = `₹${total.toFixed(2)}`;
+            checkoutBtn.disabled = total === 0;
+            cancelBtn.disabled = total === 0;
+        };
+
+        const getCartTotal = () => Object.keys(cart).reduce((sum, id) => sum + (products.find(p => p.id == id).price * cart[id]), 0);
+
+        const updateQuantity = (productId, action) => {
+            const product = products.find(p => p.id == productId);
+            let currentQuantity = cart[productId] || 0;
+            if (action === 'increase' && currentQuantity < product.stock) cart[productId] = currentQuantity + 1;
+            else if (action === 'decrease') {
+                cart[productId] = currentQuantity - 1;
+                if (cart[productId] <= 0) delete cart[productId];
+            }
+            renderCart();
+        };
+
+        // --- MODAL & CHECKOUT FUNCTIONS ---
+
+        const showProductDetails = (productId) => {
+            const product = products.find(p => p.id === productId);
+            modalContent.innerHTML = `
+                <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
+                <div class="text-center">
+                    <img src="${product.image}" class="w-40 h-40 mx-auto object-contain mb-4" onerror="this.src='https://placehold.co/200x200/cccccc/ffffff?text=Error'">
+                    <h2 class="text-3xl font-bold">${product.name}</h2><p class="text-2xl font-semibold text-blue-600 my-2">₹${product.price.toFixed(2)}</p>
+                    <div class="text-left text-sm text-gray-600 my-4 p-4 bg-gray-50 rounded-xl border">
+                        <p><strong><i class="fas fa-cookie-bite mr-2 text-gray-400"></i>Nutrition:</strong> ${product.nutrition}</p>
+                        <p class="mt-2"><strong><i class="fas fa-exclamation-triangle mr-2 text-gray-400"></i>Allergens:</strong> ${product.allergens}</p>
+                    </div>
+                    <button id="add-to-cart-modal" class="w-full bg-blue-600 text-white py-3 rounded-lg text-lg font-bold hover:bg-blue-700 transition-transform transform hover:scale-105"><i class="fas fa-cart-plus mr-2"></i>Add to Cart</button>
+                </div>`;
+            openModal();
+            document.getElementById('add-to-cart-modal').addEventListener('click', () => { updateQuantity(product.id, 'increase'); closeModal(); });
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+        };
+        
+        const showCheckout = () => {
+            modalContent.innerHTML = `
+                <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
+                <h2 class="text-3xl font-bold mb-4 text-center">Payment</h2><p class="text-gray-600 mb-6 text-center">How would you like to pay?</p>
+                <div class="space-y-3">
+                    <button class="payment-option w-full flex items-center justify-center p-4 border rounded-xl text-lg font-semibold hover:bg-gray-100" data-method="upi"><i class="fas fa-qrcode mr-3 text-blue-600"></i>Pay with UPI</button>
+                    <button class="payment-option w-full flex items-center justify-center p-4 border rounded-xl text-lg font-semibold hover:bg-gray-100" data-method="cash"><i class="fas fa-money-bill-wave mr-3 text-green-600"></i>Pay with Cash</button>
+                </div>`;
+            openModal();
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+            document.querySelectorAll('.payment-option').forEach(btn => btn.addEventListener('click', (e) => {
+                const method = e.currentTarget.dataset.method;
+                if (method === 'upi') processUpiPayment(); else if (method === 'cash') showCashPaymentUI();
+            }));
+        };
+
+        const showCashPaymentUI = () => {
+            let amountInserted = 0;
+            const totalDue = getCartTotal();
+            const notes = [10, 20, 50, 100, 200, 500];
+            modalContent.innerHTML = `
+                <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
+                <h2 class="text-2xl font-bold mb-2">Cash Payment</h2>
+                <div class="bg-gray-100 p-4 rounded-lg my-4 text-center">
+                    <div class="grid grid-cols-3 gap-2">
+                        <div><p class="text-sm text-gray-500">Total Due</p><p class="font-bold text-xl">₹${totalDue.toFixed(2)}</p></div>
+                        <div><p class="text-sm text-gray-500">Inserted</p><p class="font-bold text-xl text-blue-600" id="amount-inserted-val">₹0.00</p></div>
+                        <div><p class="text-sm text-gray-500">Change</p><p class="font-bold text-xl text-green-600" id="change-due-val">₹0.00</p></div>
+                    </div>
+                </div>
+                <p class="text-gray-600 mb-4 text-center">Please insert notes.</p>
+                <div class="grid grid-cols-3 gap-3 mb-6">
+                    ${notes.map(note => `<button class="cash-btn p-3 border rounded-lg font-semibold hover:bg-gray-100" data-value="${note}">₹${note}</button>`).join('')}
+                </div>
+                <button id="finalize-cash-payment" class="w-full bg-gray-400 text-white py-3 rounded-lg text-lg font-bold cursor-not-allowed" disabled>Complete Purchase</button>`;
+
+            const updateUI = () => {
+                const changeDue = Math.max(0, amountInserted - totalDue);
+                document.getElementById('amount-inserted-val').textContent = `₹${amountInserted.toFixed(2)}`;
+                document.getElementById('change-due-val').textContent = `₹${changeDue.toFixed(2)}`;
+                const finalizeBtn = document.getElementById('finalize-cash-payment');
+                finalizeBtn.disabled = amountInserted < totalDue;
+                if (!finalizeBtn.disabled) {
+                    finalizeBtn.classList.replace('bg-gray-400', 'bg-green-500');
+                    finalizeBtn.classList.remove('cursor-not-allowed');
+                }
+            };
+            
+            document.querySelectorAll('.cash-btn').forEach(btn => btn.addEventListener('click', (e) => {
+                amountInserted += parseFloat(e.currentTarget.dataset.value);
+                updateUI();
+            }));
+
+            document.getElementById('finalize-cash-payment').addEventListener('click', () => {
+                const change = Math.max(0, amountInserted - totalDue);
+                finishTransaction(`Please collect your items and ₹${change.toFixed(2)} change.`);
+            });
+            document.getElementById('close-modal').addEventListener('click', closeModal);
+        };
+
+        const processUpiPayment = async () => {
+            modalContent.innerHTML = `<div class="text-center py-8"><div class="relative w-20 h-20 mx-auto"><div class="absolute inset-0 border-4 border-gray-200 rounded-full"></div><div class="absolute inset-0 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div></div><p class="mt-6 text-xl font-semibold">Generating QR Code...</p></div>`;
+            try {
+                const total = getCartTotal();
+                const orderId = new Date().getTime();
+                const response = await fetch('https://vendsys-backend.onrender.com', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: total, orderId: orderId }),
+                });
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                modalContent.innerHTML = `
+                    <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold mb-2">Scan to Pay</h2>
+                        <p class="text-gray-600 mb-4">Use any UPI app like GPay, PhonePe, etc.</p>
+                        <img src="${data.qr}" alt="UPI QR Code" class="mx-auto border-4 border-gray-300 rounded-lg p-2 bg-white">
+                        <p class="font-bold text-3xl my-4">Total: ₹${total.toFixed(2)}</p>
+                        <p class="text-xs text-gray-500 mb-4">After your payment is complete, click the button below.</p>
+                        <button id="payment-confirmed-btn" class="w-full bg-green-500 text-white py-3 rounded-lg text-lg font-bold hover:bg-green-600">
+                            <i class="fas fa-check-circle mr-2"></i>I Have Paid
+                        </button>
+                    </div>`;
+                document.getElementById('close-modal').addEventListener('click', closeModal);
+                document.getElementById('payment-confirmed-btn').addEventListener('click', () => {
+                    finishTransaction("Payment Confirmed! Please collect your items.");
+                });
+            } catch (error) {
+                console.error('Failed to generate QR:', error);
+                modalContent.innerHTML = `<div class="text-center py-8"><i class="fas fa-times-circle fa-3x text-red-500"></i><p class="mt-4 text-xl font-semibold">Error</p><p class="text-gray-600">Could not connect to the server. Please try again later.</p></div>`;
+                setTimeout(closeModal, 3000);
+            }
+        };
+
+        const finishTransaction = (message) => {
+            Object.keys(cart).forEach(id => {
+                const product = products.find(p => p.id == id);
+                if (product) {
+                    product.stock -= cart[id];
+                    product.sold += cart[id];
+                }
+            });
+            modalContent.innerHTML = `<div class="text-center py-8"><div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto"><i class="fas fa-check fa-3x text-green-500"></i></div><p class="mt-6 text-xl font-semibold">Transaction Complete!</p><p class="text-gray-600 mt-2">${message}</p></div>`;
+            cart = {};
+            setTimeout(() => { closeModal(); renderCustomerView(); }, 3000);
+        }
+        
+        const openModal = () => {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex', 'modal-enter');
+            modalContent.classList.add('modal-content-enter');
+        };
+
+        const closeModal = () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex', 'modal-enter');
+            modalContent.classList.remove('modal-content-enter');
+        };
+
+        // --- VIEW SWITCHING ---
+        const switchView = (isCustomerView) => {
+            if (isCustomerView) {
+                customerView.classList.remove('hidden');
+                operatorView.classList.add('hidden');
+                customerViewBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+                operatorViewBtn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                renderCustomerView();
+            } else {
+                customerView.classList.add('hidden');
+                operatorView.classList.remove('hidden');
+                operatorViewBtn.classList.add('bg-blue-600', 'text-white', 'shadow-md');
+                customerViewBtn.classList.remove('bg-blue-600', 'text-white', 'shadow-md');
+                renderDashboard();
+            }
+        };
+
+        customerViewBtn.addEventListener('click', () => switchView(true));
+        operatorViewBtn.addEventListener('click', () => switchView(false));
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+        // --- INITIALIZATION ---
+        switchView(true);
+    });
+    </script>
+</body>
+</html>
+=======
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -537,3 +1078,4 @@
     </script>
 </body>
 </html>
+>>>>>>> 9cc891c4c4bbc411629952b78aa1672dcd9c768b
