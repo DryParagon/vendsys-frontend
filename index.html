@@ -236,7 +236,7 @@
             </div>`;
             renderProducts();
             renderCart();
-            addCustomerViewEventListeners(); // Attach event listeners once
+            addCustomerViewEventListeners();
         };
         
         const addCustomerViewEventListeners = () => {
@@ -279,7 +279,6 @@
                 </div>
             </div>`;
 
-            // Populate Inventory Table
             const tableBody = document.getElementById('inventory-table-body');
             products.forEach(p => {
                 let status, statusColor;
@@ -289,24 +288,17 @@
                 tableBody.innerHTML += `<tr class="border-b hover:bg-gray-50"><td class="p-2 font-semibold">${p.name}</td><td class="p-2">${p.stock}</td><td class="p-2">${p.par}</td><td class="p-2"><span class="px-2 py-1 text-xs font-semibold rounded-full ${statusColor}">${status}</span></td></tr>`;
             });
             
-            // Render Charts
             const salesCtx = document.getElementById('salesChart').getContext('2d');
             salesChartInstance = new Chart(salesCtx, {
                 type: 'bar',
-                data: {
-                    labels: products.map(p => p.name),
-                    datasets: [{ label: 'Units Sold', data: products.map(p => p.sold), backgroundColor: '#3b82f6' }]
-                },
+                data: { labels: products.map(p => p.name), datasets: [{ label: 'Units Sold', data: products.map(p => p.sold), backgroundColor: '#3b82f6' }] },
                 options: { responsive: true, plugins: { title: { display: true, text: 'Sales Performance' } } }
             });
 
             const stockCtx = document.getElementById('stockChart').getContext('2d');
             stockChartInstance = new Chart(stockCtx, {
                 type: 'doughnut',
-                data: {
-                    labels: ['In Stock', 'Empty Slots'],
-                    datasets: [{ data: [products.reduce((s, p) => s + p.stock, 0), products.reduce((s, p) => s + p.par, 0) - products.reduce((s,p) => s + p.stock, 0)], backgroundColor: ['#10b981', '#ef4444'] }]
-                },
+                data: { labels: ['In Stock', 'Empty Slots'], datasets: [{ data: [products.reduce((s, p) => s + p.stock, 0), products.reduce((s, p) => s + p.par, 0) - products.reduce((s,p) => s + p.stock, 0)], backgroundColor: ['#10b981', '#ef4444'] }] },
                 options: { responsive: true, plugins: { title: { display: true, text: 'Overall Stock Level' } } }
             });
         };
@@ -336,11 +328,8 @@
             const cartTotalEl = document.getElementById('cart-total');
             const checkoutBtn = document.getElementById('checkout-btn');
             const cancelBtn = document.getElementById('cancel-btn');
-
-            // Store the empty message element before clearing, then re-append if needed.
             cartItemsContainer.innerHTML = '';
             const cartProductIds = Object.keys(cart);
-
             if (cartProductIds.length === 0) {
                 cartItemsContainer.appendChild(cartEmptyMessage);
             } else {
@@ -406,14 +395,14 @@
                 <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
                 <h2 class="text-3xl font-bold mb-4 text-center">Payment</h2><p class="text-gray-600 mb-6 text-center">How would you like to pay?</p>
                 <div class="space-y-3">
-                    <button class="payment-option w-full flex items-center justify-center p-4 border rounded-xl text-lg font-semibold hover:bg-gray-100" data-method="card"><i class="fas fa-credit-card mr-3 text-blue-600"></i>Card / UPI</button>
+                    <button class="payment-option w-full flex items-center justify-center p-4 border rounded-xl text-lg font-semibold hover:bg-gray-100" data-method="upi"><i class="fas fa-qrcode mr-3 text-blue-600"></i>Pay with UPI</button>
                     <button class="payment-option w-full flex items-center justify-center p-4 border rounded-xl text-lg font-semibold hover:bg-gray-100" data-method="cash"><i class="fas fa-money-bill-wave mr-3 text-green-600"></i>Pay with Cash</button>
                 </div>`;
             openModal();
             document.getElementById('close-modal').addEventListener('click', closeModal);
             document.querySelectorAll('.payment-option').forEach(btn => btn.addEventListener('click', (e) => {
                 const method = e.currentTarget.dataset.method;
-                if (method === 'card') processCardPayment(); else if (method === 'cash') showCashPaymentUI();
+                if (method === 'upi') processUpiPayment(); else if (method === 'cash') showCashPaymentUI();
             }));
         };
 
@@ -461,9 +450,39 @@
             document.getElementById('close-modal').addEventListener('click', closeModal);
         };
 
-        const processCardPayment = () => {
-            modalContent.innerHTML = `<div class="text-center py-8"><div class="relative w-20 h-20 mx-auto"><div class="absolute inset-0 border-4 border-blue-200 rounded-full"></div><div class="absolute inset-0 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div></div><p class="mt-6 text-xl font-semibold">Processing Payment...</p><p class="text-sm text-gray-500">Please tap your card</p></div>`;
-            setTimeout(() => finishTransaction("Payment Successful! Please collect your items."), 2500);
+        const processUpiPayment = async () => {
+            modalContent.innerHTML = `<div class="text-center py-8"><div class="relative w-20 h-20 mx-auto"><div class="absolute inset-0 border-4 border-gray-200 rounded-full"></div><div class="absolute inset-0 border-4 border-blue-500 rounded-full animate-spin border-t-transparent"></div></div><p class="mt-6 text-xl font-semibold">Generating QR Code...</p></div>`;
+            try {
+                const total = getCartTotal();
+                const orderId = new Date().getTime();
+                const response = await fetch('http://localhost:4000/generate-qr', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ amount: total, orderId: orderId }),
+                });
+                if (!response.ok) throw new Error('Network response was not ok');
+                const data = await response.json();
+                modalContent.innerHTML = `
+                    <button id="close-modal" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 text-3xl font-light">&times;</button>
+                    <div class="text-center">
+                        <h2 class="text-2xl font-bold mb-2">Scan to Pay</h2>
+                        <p class="text-gray-600 mb-4">Use any UPI app like GPay, PhonePe, etc.</p>
+                        <img src="${data.qr}" alt="UPI QR Code" class="mx-auto border-4 border-gray-300 rounded-lg p-2 bg-white">
+                        <p class="font-bold text-3xl my-4">Total: ₹${total.toFixed(2)}</p>
+                        <p class="text-xs text-gray-500 mb-4">After your payment is complete, click the button below.</p>
+                        <button id="payment-confirmed-btn" class="w-full bg-green-500 text-white py-3 rounded-lg text-lg font-bold hover:bg-green-600">
+                            <i class="fas fa-check-circle mr-2"></i>I Have Paid
+                        </button>
+                    </div>`;
+                document.getElementById('close-modal').addEventListener('click', closeModal);
+                document.getElementById('payment-confirmed-btn').addEventListener('click', () => {
+                    finishTransaction("Payment Confirmed! Please collect your items.");
+                });
+            } catch (error) {
+                console.error('Failed to generate QR:', error);
+                modalContent.innerHTML = `<div class="text-center py-8"><i class="fas fa-times-circle fa-3x text-red-500"></i><p class="mt-4 text-xl font-semibold">Error</p><p class="text-gray-600">Could not connect to the server. Please try again later.</p></div>`;
+                setTimeout(closeModal, 3000);
+            }
         };
 
         const finishTransaction = (message) => {
