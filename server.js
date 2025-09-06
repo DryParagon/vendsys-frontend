@@ -6,7 +6,6 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Your UPI details
 const UPI_ID = "prathameshingle2005-1@oksbi";
 const PAYEE_NAME = "Prathamesh Ingle";
 
@@ -23,3 +22,4 @@ app.post("/generate-qr", async (req, res) => {
 });
 
 app.listen(4000, () => console.log("✅ Server running on port 4000"));
+
